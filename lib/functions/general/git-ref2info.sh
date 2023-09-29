@@ -9,12 +9,15 @@
 
 # This works under memoize-cached.sh::run_memoized() -- which is full of tricks.
 # Nested functions are used because the source of the momoized function is used as part of the cache hash.
+# 下载源码
 function memoized_git_ref_to_info() {
 	declare -n MEMO_DICT="${1}" # nameref
 	declare ref_type ref_name
 	declare -a refs_to_try=()
 
+	echo "${MEMO_DICT[GIT_REF]} 000000000000000000"
 	git_parse_ref "${MEMO_DICT[GIT_REF]}"
+	echo "${MEMO_DICT[GIT_REF]} 1111111111111111"
 	MEMO_DICT+=(["REF_TYPE"]="${ref_type}")
 	MEMO_DICT+=(["REF_NAME"]="${ref_name}")
 

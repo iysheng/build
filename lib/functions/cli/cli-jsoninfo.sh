@@ -22,6 +22,7 @@ function cli_json_info_run() {
 	}
 
 	function json_info_only() {
+		exit_with_error "OH no"
 		prepare_python_and_pip # requires HOSTRELEASE
 
 		declare INFO_TOOLS_DIR="${SRC}"/lib/tools/info

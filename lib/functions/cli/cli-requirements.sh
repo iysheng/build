@@ -34,6 +34,7 @@ function cli_requirements_run() {
 	declare -i -g -r prepare_host_has_already_run=1 # global, readonly. fool the rest of the script into thinking we've already run prepare_host.
 
 	if [[ "${ARMBIAN_INSIDE_DOCKERFILE_BUILD}" == "yes" ]]; then
+		exit_with_error "--------------------------oh no"
 		# Include python/pip packages in the Dockerfile build.
 		deploy_to_non_cache_dir="yes" prepare_python_and_pip
 

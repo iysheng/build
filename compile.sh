@@ -18,6 +18,7 @@ set -o errtrace # trace ERR through - enabled
 set -o errexit  ## set -e : exit the script if any statement returns a non-true return value - enabled
 # Important, go read http://mywiki.wooledge.org/BashFAQ/105 NOW!
 
+# 这个 BASH_SOURCE[0] 是第一个脚本的名称
 SRC="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 cd "${SRC}" || exit
 

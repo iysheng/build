@@ -9,73 +9,7 @@
 
 function run_tool_oras() {
 	# Default version
-	ORAS_VERSION=${ORAS_VERSION:-0.16.0} # https://github.com/oras-project/oras/releases
-	#ORAS_VERSION=${ORAS_VERSION:-"1.0.0-rc.1"} # https://github.com/oras-project/oras/releases
-
-	declare non_cache_dir="/armbian-tools/oras" # To deploy/reuse cached ORAS in a Docker image.
-
-	if [[ -z "${DIR_ORAS}" ]]; then
-		display_alert "DIR_ORAS is not set, using default" "ORAS" "debug"
-
-		if [[ "${deploy_to_non_cache_dir:-"no"}" == "yes" ]]; then
-			DIR_ORAS="${non_cache_dir}" # root directory.
-			display_alert "Deploying ORAS to non-cache dir" "DIR_ORAS: ${DIR_ORAS}" "debug"
-		else
-			if [[ -n "${SRC}" ]]; then
-				DIR_ORAS="${SRC}/cache/tools/oras"
-			else
-				display_alert "Missing DIR_ORAS, or SRC fallback" "DIR_ORAS: ${DIR_ORAS}; SRC: ${SRC}" "ORAS" "err"
-				return 1
-			fi
-		fi
-	else
-		display_alert "DIR_ORAS is set to ${DIR_ORAS}" "ORAS" "debug"
-	fi
-
-	mkdir -p "${DIR_ORAS}"
-
-	declare MACHINE="${BASH_VERSINFO[5]}" ORAS_OS ORAS_ARCH
-	display_alert "Running ORAS" "ORAS version ${ORAS_VERSION}" "debug"
-	MACHINE="${BASH_VERSINFO[5]}"
-	case "$MACHINE" in
-		*darwin*) ORAS_OS="darwin" ;;
-		*linux*) ORAS_OS="linux" ;;
-		*)
-			exit_with_error "unknown os: $MACHINE"
-			;;
-	esac
-
-	case "$MACHINE" in
-		*aarch64*) ORAS_ARCH="arm64" ;;
-		*x86_64*) ORAS_ARCH="amd64" ;;
-		*)
-			exit_with_error "unknown arch: $MACHINE"
-			;;
-	esac
-
-	declare ORAS_FN="oras_${ORAS_VERSION}_${ORAS_OS}_${ORAS_ARCH}"
-	declare ORAS_FN_TARXZ="${ORAS_FN}.tar.gz"
-	declare DOWN_URL="https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/${ORAS_FN_TARXZ}"
-	declare ORAS_BIN="${DIR_ORAS}/${ORAS_FN}"
-	declare ACTUAL_VERSION
-
-	# Check if we have a cached version in a Docker image, and copy it over before possibly updating it.
-	if [[ "${deploy_to_non_cache_dir:-"no"}" != "yes" && -d "${non_cache_dir}" && ! -f "${ORAS_BIN}" ]]; then
-		display_alert "Using cached ORAS from Docker image" "ORAS" "debug"
-		run_host_command_logged cp -r "${non_cache_dir}/"* "${DIR_ORAS}/"
-	fi
-
-	if [[ ! -f "${ORAS_BIN}" ]]; then
-		do_with_retries 5 try_download_oras_tooling
-	fi
-	ACTUAL_VERSION="$("${ORAS_BIN}" version | grep "^Version" | xargs echo -n)"
-	display_alert "Running ORAS ${ACTUAL_VERSION}" "ORAS" "debug"
-
-	if [[ "${deploy_to_non_cache_dir:-"no"}" == "yes" ]]; then
-		display_alert "Deployed ORAS to non-cache dir" "DIR_ORAS: ${DIR_ORAS}" "debug"
-		return 0 # don't actually execute.
-	fi
-
+    local ORAS_BIN=oras
 	# Run oras, possibly with retries...
 	if [[ "${retries:-1}" -gt 1 ]]; then
 		display_alert "Calling ORAS with retries ${retries}" "$*" "debug"

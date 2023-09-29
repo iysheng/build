@@ -248,6 +248,7 @@ function adaptative_prepare_host_dependencies() {
 	fi
 
 	#### Common: for all releases, all host arches, and all target arches.
+	# 声明的依赖
 	declare -a -g host_dependencies=(
 		# big bag of stuff from before
 		bc binfmt-support
@@ -341,6 +342,7 @@ function adaptative_prepare_host_dependencies() {
 	fi
 
 	declare -g FINAL_HOST_DEPS="${host_dependencies[*]}"
+	echo ${FINAL_HOST_DEPS}
 	call_extension_method "host_dependencies_known" <<- 'HOST_DEPENDENCIES_KNOWN'
 		*run after all host dependencies are known (but not installed)*
 		At this point we can read `${FINAL_HOST_DEPS}`, but changing won't have any effect.
@@ -353,14 +355,14 @@ function install_host_dependencies() {
 	display_alert "Installing build dependencies" "$*" "debug"
 
 	# don't prompt for apt cacher selection. this is to skip the prompt only, since we'll manage acng config later.
-	local sudo_prefix="" && is_root_or_sudo_prefix sudo_prefix # nameref; "sudo_prefix" will be 'sudo' or ''
-	${sudo_prefix} echo "apt-cacher-ng    apt-cacher-ng/tunnelenable      boolean false" | ${sudo_prefix} debconf-set-selections
+	local sudo_prefix="" #&& is_root_or_sudo_prefix sudo_prefix # nameref; "sudo_prefix" will be 'sudo' or ''
+	#${sudo_prefix} echo "apt-cacher-ng    apt-cacher-ng/tunnelenable      boolean false" | ${sudo_prefix} debconf-set-selections
 
 	# This handles the wanted list in $host_dependencies, updates apt only if needed
 	# $host_dependencies is produced by early_prepare_host_dependencies()
 	install_host_side_packages "${host_dependencies[@]}"
 
-	run_host_command_logged update-ccache-symlinks
+	#run_host_command_logged update-ccache-symlinks
 
 	declare -g FINAL_HOST_DEPS="${host_dependencies[*]}"
 

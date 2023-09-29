@@ -14,14 +14,14 @@
 function early_prepare_pip3_dependencies_for_python_tools() {
 	# This is like a stupid version of requirements.txt
 	declare -a -g python3_pip_dependencies=(
-		"unidiff==0.7.4"      # for parsing unified diff
-		"GitPython==3.1.30"   # for manipulating git repos
-		"unidecode==1.3.6"    # for converting strings to ascii
-		"coloredlogs==15.0.1" # for colored logging
-		"PyYAML==6.0"         # for parsing/writing YAML
-		"oras==0.1.17"        # for OCI stuff in mapper-oci-update
-		"Jinja2==3.1.2"       # for templating
-		"rich==13.4.1"        # for rich text formatting
+		# "unidiff==0.7.4"      # for parsing unified diff
+		# "GitPython==3.1.30"   # for manipulating git repos
+		# "unidecode==1.3.6"    # for converting strings to ascii
+		# "coloredlogs==15.0.1" # for colored logging
+		# "PyYAML==6.0"         # for parsing/writing YAML
+		# "oras==0.1.17"        # for OCI stuff in mapper-oci-update
+		# "Jinja2==3.1.2"       # for templating
+		# "rich==13.4.1"        # for rich text formatting
 	)
 	return 0
 }
@@ -90,12 +90,12 @@ function prepare_python_and_pip() {
 	# if pip 23+, add "--break-system-packages" to pip3 invocations.
 	# See See PEP 668 -- System-wide package management with pip
 	# but the fact is that we're _not_ managing system-wide, instead --user
-	if linux-version compare "${pip3_version_number}" ge "23.0"; then
-		pip3_extra_args+=("--break-system-packages")
-	fi
-	if linux-version compare "${pip3_version_number}" ge "22.1"; then
-		pip3_extra_args+=("--root-user-action=ignore")
-	fi
+	# if linux-version compare "${pip3_version_number}" ge "23.0"; then
+		# pip3_extra_args+=("--break-system-packages")
+	# fi
+	# if linux-version compare "${pip3_version_number}" ge "22.1"; then
+		# pip3_extra_args+=("--root-user-action=ignore")
+	# fi
 
 	declare python_hash_base="${python_pip_cache}/pip_pkg_hash"
 	declare python_hash_file="${python_hash_base}_${python3_pip_dependencies_hash}"

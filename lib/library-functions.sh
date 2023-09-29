@@ -620,6 +620,7 @@ set -o errtrace # trace ERR through - enabled
 set -o errexit  ## set -e : exit the script if any statement returns a non-true return value - enabled
 ### lib/functions/general/bat-cat.sh
 # shellcheck source=lib/functions/general/bat-cat.sh
+# 检查到这里了么？？
 source "${SRC}"/lib/functions/general/bat-cat.sh
 
 # no errors tolerated. invoked before each sourced file to make sure.

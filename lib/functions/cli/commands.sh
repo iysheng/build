@@ -7,6 +7,7 @@
 # This file is a part of the Armbian Build Framework
 # https://github.com/armbian/build/
 
+# 注册命令, 就是声明一些全局变量，类型是字典
 function armbian_register_commands() {
 	# More than one command can map to the same handler. In that case, use ARMBIAN_COMMANDS_TO_VARS_DICT for specific vars.
 	declare -g -A ARMBIAN_COMMANDS_TO_HANDLERS_DICT=(
@@ -46,6 +47,7 @@ function armbian_register_commands() {
 		["flash"]="flash"          # implemented in cli_flash_pre_run and cli_flash_run
 
 		# external tooling, made easy.
+		# 好像是和 docker 有关的东西, 管理 docker 的服务？？？
 		["oras-upload"]="oras" # implemented in cli_oras_pre_run and cli_oras_run; up/down/info are the same, see vars below
 
 		# all-around artifact wrapper

@@ -40,9 +40,13 @@ function artifact_uboot_prepare_version() {
 
 	declare short_hash_size=4
 
+	# 声明了一个数组
 	declare -A GIT_INFO_UBOOT=([GIT_SOURCE]="${BOOTSOURCE}" [GIT_REF]="${BOOTBRANCH}")
+	echo "--------------- down uboot -----here ${GIT_INFO_UBOOT[@]} ---"
 	run_memoized GIT_INFO_UBOOT "git2info" memoized_git_ref_to_info "include_makefile_body"
+	echo "--------------- down uboot -----000"
 	debug_dict GIT_INFO_UBOOT
+	echo "--------------- down uboot -----end"
 
 	# Sanity check, the SHA1 gotta be sane.
 	[[ "${GIT_INFO_UBOOT[SHA1]}" =~ ^[0-9a-f]{40}$ ]] || exit_with_error "SHA1 is not sane: '${GIT_INFO_UBOOT[SHA1]}'"
@@ -55,6 +59,7 @@ function artifact_uboot_prepare_version() {
 	declare patches_hash="undetermined"
 	declare hash_files="undetermined"
 	declare -a uboot_patch_dirs=()
+	# 打补丁
 	for patch_dir in ${BOOTPATCHDIR}; do
 		uboot_patch_dirs+=("${SRC}/patch/u-boot/${patch_dir}" "${USERPATCHES_PATH}/u-boot/${patch_dir}")
 	done
@@ -163,6 +168,7 @@ function artifact_uboot_build_from_sources() {
 	fi
 
 	declare uboot_git_revision="not_determined_yet"
+	# 下载 uboot
 	LOG_SECTION="uboot_prepare_git" do_with_logging_unless_user_terminal uboot_prepare_git
 
 	# Hack, if ARTIFACT_BUILD_INTERACTIVE=yes, don't run under logging manager. Emit a warning about it.

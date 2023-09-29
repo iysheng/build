@@ -8,6 +8,7 @@
 # https://github.com/armbian/build/
 
 # This is called both early in compile.sh, but also after processing cmdline params in the cli entrypoint.sh
+# 日志打印系统初始化
 function logging_init() {
 	# defaults.
 	# if stdout is a terminal, then default SHOW_LOG to yes

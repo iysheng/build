@@ -170,6 +170,7 @@ function remove_all_trap_handlers() {
 
 # exit_with_error <message> <highlight>
 # a way to terminate build process with verbose error message
+# 调试打印信息入口函数
 function exit_with_error() {
 	# Log the error and exit.
 	# Everything else will be done by shared trap handling, above.

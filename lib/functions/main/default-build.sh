@@ -39,6 +39,7 @@ function full_build_packages_rootfs_and_image() {
 
 function do_with_default_build() {
 	main_default_start_build # Has its own logging, prepares workdir, does prepare_host, aggregation, and
+	echo "------------- ${@} ----------------------"
 	"${@}"
 	main_default_end_build
 }

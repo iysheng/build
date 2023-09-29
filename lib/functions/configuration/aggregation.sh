@@ -44,7 +44,8 @@ function aggregate_packages() {
 }
 
 function aggregate_all_packages_python() {
-	prepare_python_and_pip
+	# 走到了这里
+	# prepare_python_and_pip
 
 	# Get a temporary file for the output. This is not WORKDIR yet, since we're still in configuration phase.
 	temp_file_for_aggregation="$(mktemp)"

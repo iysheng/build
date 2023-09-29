@@ -33,6 +33,7 @@ function cli_entrypoint() {
 	parse_cmdline_params "${@}"                    # which fills the above vars.
 
 	# Now load the key=value pairs from cmdline into environment, before loading config or executing commands.
+	# 在加载配置和执行命令之前，将 key-value 对导入到环境变量
 	# This will be done _again_ later, to make sure cmdline params override config et al.
 	apply_cmdline_params_to_env "early" # which uses ARMBIAN_PARSED_CMDLINE_PARAMS
 	# From here on, no more ${1} or stuff. We've parsed it all into ARMBIAN_PARSED_CMDLINE_PARAMS or ARMBIAN_NON_PARAM_ARGS and ARMBIAN_COMMAND.
@@ -84,6 +85,7 @@ function cli_entrypoint() {
 	# Also form here, UUID will be generated, output created, logging enabled, etc.
 
 	# Init basic dirs.
+	# -r 表示变量只读
 	declare -g -r DEST="${SRC}/output" USERPATCHES_PATH="${SRC}"/userpatches # DEST is the main output dir, and USERPATCHES_PATH is the userpatches dir. read-only.
 	mkdir -p "${DEST}" "${USERPATCHES_PATH}"                                 # Create output and userpatches directory if not already there
 	display_alert "Output directory created! DEST:" "${DEST}" "debug"
@@ -136,6 +138,7 @@ function cli_entrypoint() {
 			display_alert "* " "Sources, time and host will not be checked"
 		else
 			# check and install the basic utilities;
+			# 感觉这里检测没有通过
 			LOG_SECTION="prepare_host_basic" do_with_logging prepare_host_basic # This includes the 'docker' case.
 		fi
 	fi
@@ -145,11 +148,16 @@ function cli_entrypoint() {
 	extension_manager_declare_globals
 
 	# Loop over the ARMBIAN_CONFIG_FILES array and source each. The order is important.
+	# 配置文件相关的目录，遍历
 	for config_file in "${ARMBIAN_CONFIG_FILES[@]}"; do
+		# 截取配置文件名和配置文件目录
 		local config_filename="${config_file##*/}" config_dir="${config_file%/*}"
+		display_alert "Red Sourcing config file full name" "${config_file}" "debug"
 		display_alert "Sourcing config file" "${config_filename}" "debug"
 
 		# use pushd/popd to change directory to the config file's directory, so that relative paths in the config file work.
+		# 进入配置文件所在的目录
+		# 
 		pushd "${config_dir}" > /dev/null || exit_with_error "Failed to pushd to ${config_dir}"
 
 		# shellcheck source=/dev/null

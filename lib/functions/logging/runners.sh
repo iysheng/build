@@ -153,9 +153,8 @@ function host_apt_get_install() {
 
 # For running apt-get stuff host-side. Not chroot!
 function host_apt_get() {
-	local -a apt_params=("-y" "-qq")
-	apt_params+=(-o "Dpkg::Use-Pty=0") # Please be quiet
-	run_host_command_logged DEBIAN_FRONTEND=noninteractive apt-get "${apt_params[@]}" "$@"
+	echo "rrr"
+	#run_host_command_logged DEBIAN_FRONTEND=noninteractive dnf "${apt_params[@]}" "$@"
 }
 
 # For host-side invocations of binaries we _know_ are x86-only.
