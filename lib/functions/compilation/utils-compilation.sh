@@ -36,10 +36,11 @@ grab_version() {
 # returns path to toolchain that satisfies <expression>
 #
 find_toolchain() {
-	[[ "${SKIP_EXTERNAL_TOOLCHAINS}" == "yes" ]] && {
-		echo "/usr/bin"
-		return
-	}
+	# echo "${SKIP_EXTERNAL_TOOLCHAINS} wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
+	# [[ "${SKIP_EXTERNAL_TOOLCHAINS}" == "yes" ]] && {
+		# echo "/usr/bin"
+		# return
+	# }
 
 	local compiler=$1
 	local expression=$2
@@ -54,7 +55,7 @@ find_toolchain() {
 	target_ver=$(grep -oE "[[:digit:]]+\.[[:digit:]]" <<< "$expression")
 	display_alert "Searching for toolchain" "'${compiler}' '${expression}': target_ver: '${target_ver}'" "debug"
 
-	for dir in "${SRC}"/cache/toolchain/*/; do
+	for dir in "/home/red/Projects/sipeed/licheepi4a/misc/Xuantie-900-gcc-linux-5.10.4-glibc-x86_64-V2.6.2/"; do
 		display_alert "Checking toolchain" "${dir}" "debug"
 		local gcc_bin="${dir}bin/${compiler}gcc"
 		# check if is a toolchain for current $ARCH

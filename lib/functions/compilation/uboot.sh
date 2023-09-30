@@ -162,11 +162,11 @@ function compile_uboot_target() {
 		"-Wno-error=attributes"               # for very old-uboots
 		"-Wno-error=address-of-packed-member" # for very old-uboots
 	)
-	if linux-version compare "${gcc_version_main}" ge "11.0"; then
-		uboot_cflags_array+=(
-			"-Wno-error=array-parameter" # very old uboots
-		)
-	fi
+	# if linux-version compare "${gcc_version_main}" ge "11.0"; then
+		# uboot_cflags_array+=(
+			# "-Wno-error=array-parameter" # very old uboots
+		# )
+	# fi
 
 	# Hook time, for extra post-processing
 	call_extension_method "post_config_uboot_target" <<- 'POST_CONFIG_UBOOT_TARGET'
@@ -285,6 +285,7 @@ function deploy_built_uboot_bins_for_one_target_to_packaging_area() {
 	done
 }
 
+# 编译 uboot 的函数入口
 function compile_uboot() {
 	: "${artifact_version:?artifact_version is not set}"
 
@@ -320,6 +321,7 @@ function compile_uboot() {
 	if [[ $(dpkg --print-architecture) == amd64 ]]; then
 		local toolchain
 		toolchain=$(find_toolchain "$UBOOT_COMPILER" "$UBOOT_USE_GCC")
+		echo "${toolchain} xxxxxxxxxxxxxxxxxxxxxx"
 		[[ -z $toolchain ]] && exit_with_error "Could not find required toolchain" "${UBOOT_COMPILER}gcc $UBOOT_USE_GCC"
 
 		if [[ -n $UBOOT_TOOLCHAIN2 ]]; then

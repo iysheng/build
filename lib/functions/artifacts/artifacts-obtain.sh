@@ -18,12 +18,14 @@ function create_artifact_functions() {
 		"build_from_sources"
 	)
 	for func in "${funcs[@]}"; do
+		# 最后调用函数的函数名称是 artifact_xxxx_build_from_sources
 		declare impl_func="artifact_${chosen_artifact_impl}_${func}"
 		if [[ $(type -t "${impl_func}") == function ]]; then
 			declare cmd
 			cmd="$(
 				cat <<- ARTIFACT_DEFINITION
 					function artifact_${func}() {
+						# 实际执行的函数还是 ${impl_func}， 即 build_from_sources
 						display_alert "Calling artifact function" "${impl_func}() \$*" "debug"
 						${impl_func} "\$@"
 					}
@@ -52,6 +54,7 @@ function create_artifact_functions() {
 	fi
 }
 
+# 初始化 initialize_artifact
 function initialize_artifact() {
 	declare -g chosen_artifact="${1}"
 
@@ -61,7 +64,9 @@ function initialize_artifact() {
 	[[ "${chosen_artifact}" == *","* ]] && exit_with_error "Artifact name cannot contain commas"
 
 	armbian_register_artifacts
+	# 声明 chosen_artifact_impl, 在调用相关函数的时候会用到
 	declare -g chosen_artifact_impl="${ARMBIAN_ARTIFACTS_TO_HANDLERS_DICT["${chosen_artifact}"]}"
+	echo "rrrrrrrrrrrrrrrrrrrred ${chosen_artifact_impl}"
 	[[ "x${chosen_artifact_impl}x" == "xx" ]] && exit_with_error "Unknown artifact '${chosen_artifact}'"
 	display_alert "artifact" "${chosen_artifact} :: ${chosen_artifact_impl}()" "info"
 	create_artifact_functions

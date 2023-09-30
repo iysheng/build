@@ -223,7 +223,7 @@ function produce_relaunch_parameters() {
 
 function cli_standard_relaunch_docker_or_sudo() {
 	display_alert "Gonna relaunch" "EUID: ${EUID} -- PREFER_DOCKER:${PREFER_DOCKER}" "debug"
-	if [[ "${EUID}" == "0" ]]; then # we're already root. Either running as real root, or already sudo'ed.
+	if [[ "${EUID}" == "0" || "${EUID}" == "1001" ]]; then # we're already root. Either running as real root, or already sudo'ed.
 		if [[ "${ARMBIAN_RELAUNCHED}" != "yes" && "${ALLOW_ROOT}" != "yes" ]]; then
 			display_alert "PROBLEM: don't run ./compile.sh as root or with sudo" "PROBLEM: don't run ./compile.sh as root or with sudo" "err"
 			if [[ -t 0 ]]; then # so... non-interactive builds *can* run as root. It's not supported, you'll get an error, but we'll proceed.
@@ -274,7 +274,9 @@ function cli_standard_relaunch_docker_or_sudo() {
 		declare -g ARMBIAN_CLI_FINAL_RELAUNCH_ENVS=()
 		produce_relaunch_parameters # produces ARMBIAN_CLI_FINAL_RELAUNCH_ARGS and ARMBIAN_CLI_FINAL_RELAUNCH_ENVS
 		# shellcheck disable=SC2093 # re-launching under sudo: replace the current shell, and never return.
-		exec sudo --preserve-env "${ARMBIAN_CLI_FINAL_RELAUNCH_ENVS[@]}" bash "${SRC}/compile.sh" "${ARMBIAN_CLI_FINAL_RELAUNCH_ARGS[@]}" # MARK: relaunch done here!
+		# exec sudo --preserve-env "${ARMBIAN_CLI_FINAL_RELAUNCH_ENVS[@]}" bash "${SRC}/compile.sh" "${ARMBIAN_CLI_FINAL_RELAUNCH_ARGS[@]}" # MARK: relaunch done here!
+		display_alert "WILL SUDO!!! -------------------------------------------" "warn"                                                                              # This should _never_ happen
+		exec bash "${SRC}/compile.sh" "${ARMBIAN_CLI_FINAL_RELAUNCH_ARGS[@]}" # MARK: relaunch done here!
 		display_alert "AFTER SUDO!!!" "AFTER SUDO!!!" "warn"                                                                              # This should _never_ happen
 	fi
 }

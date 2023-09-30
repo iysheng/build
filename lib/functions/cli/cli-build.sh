@@ -11,6 +11,7 @@ function cli_standard_build_pre_run() {
 	declare -g ARMBIAN_COMMAND_REQUIRE_BASIC_DEPS="yes" # Require prepare_host_basic to run before the command.
 
 	# "gimme root on a Linux machine"
+	# 检查使用 sudo 权限
 	cli_standard_relaunch_docker_or_sudo
 }
 

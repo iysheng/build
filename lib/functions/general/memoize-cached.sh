@@ -43,9 +43,9 @@ function run_memoized() {
 	declare -i memoize_cache_ttl=${memoize_cache_ttl:-3600} # 1 hour default; can be overriden from outer scope
 
 	# Lock...
-	exec {lock_fd}> "${disk_cache_file}.lock" || exit_with_error "failed to lock"
-	flock "${lock_fd}" || exit_with_error "flock() failed"
-	display_alert "Lock obtained" "${disk_cache_file}.lock" "debug"
+	# exec {lock_fd}> "${disk_cache_file}.lock" || exit_with_error "failed to lock"
+	# flock "${lock_fd}" || exit_with_error "flock() failed"
+	# display_alert "Lock obtained" "${disk_cache_file}.lock" "debug"
 
 	if [[ -f "${disk_cache_file}" ]]; then
 		declare disk_cache_file_mtime_seconds
@@ -69,10 +69,11 @@ function run_memoized() {
 	${memoized_func} "${var_n}" "${extra_args[@]}"
 
 	# ... and save the output to the cache; twist declare -p's output due to the nameref
+	echo "${disk_cache_file} #####################################################"
 	declare -p "${var_n}" | sed -e 's|^declare -A ||' > "${disk_cache_file}"
 
 	# ... unlock.
-	flock -u "${lock_fd}"
+	# flock -u "${lock_fd}"
 
 	return 0
 }

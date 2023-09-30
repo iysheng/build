@@ -78,7 +78,9 @@ function do_with_logging() {
 		# get the pid of the spawned process, so we can kill it later.
 		global_tee_pid=$!
 
+		# 执行传递近来的命令，打印重定向
 		"$@" >&13
+		# 关闭这个文件描述符
 		exec 13>&- # close the file descriptor, lest sed keeps running forever.
 	else
 		# If not showing the log, just send stdout to logfile. stderr will flow to screen.

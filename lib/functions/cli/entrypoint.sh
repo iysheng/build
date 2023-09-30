@@ -24,6 +24,7 @@ function cli_entrypoint() {
 
 	# Decide what we're gonna do. We've a few hardcoded, 1st-argument "commands".
 	declare -g -A ARMBIAN_COMMANDS_TO_HANDLERS_DICT ARMBIAN_COMMANDS_TO_VARS_DICT
+	# 定义了以上两个字典
 	armbian_register_commands # this defines the above two dictionaries
 
 	# Process the command line, separating params (XX=YY) from non-params arguments.
@@ -87,6 +88,7 @@ function cli_entrypoint() {
 	# Init basic dirs.
 	# -r 表示变量只读
 	declare -g -r DEST="${SRC}/output" USERPATCHES_PATH="${SRC}"/userpatches # DEST is the main output dir, and USERPATCHES_PATH is the userpatches dir. read-only.
+	# 创建目标目录和用户补丁目录
 	mkdir -p "${DEST}" "${USERPATCHES_PATH}"                                 # Create output and userpatches directory if not already there
 	display_alert "Output directory created! DEST:" "${DEST}" "debug"
 
@@ -97,6 +99,7 @@ function cli_entrypoint() {
 		display_alert "Using passed-in ARMBIAN_BUILD_UUID" "${ARMBIAN_BUILD_UUID}" "debug"
 	else
 		if command -v uuidgen 1> /dev/null; then
+			# 生成一个 uuid
 			ARMBIAN_BUILD_UUID="$(uuidgen)"
 		else
 			display_alert "uuidgen not found" "uuidgen not installed yet" "info"
@@ -117,6 +120,7 @@ function cli_entrypoint() {
 	# @TODO: These are used only by rootfs/image actual build, move there...
 	declare -g -r SDCARD="${WORKDIR_BASE_TMP}/rootfs-${ARMBIAN_BUILD_UUID}" # SDCARD (which is NOT an sdcard, but will be, maybe, one day) is where we work the rootfs before final imaging. "rootfs" stage.
 	declare -g -r MOUNT="${WORKDIR_BASE_TMP}/mount-${ARMBIAN_BUILD_UUID}"   # MOUNT ("mounted on the loop") is the mounted root on final image (via loop). "image" stage
+	# 声明目标镜像文件名
 	declare -g -r DESTIMG="${WORKDIR_BASE_TMP}/image-${ARMBIAN_BUILD_UUID}" # DESTIMG is where the backing image (raw, huge, sparse file) is kept (not the final destination)
 
 	# Make sure ARMBIAN_LOG_CLI_ID is set, and unique, and readonly.
@@ -132,6 +136,7 @@ function cli_entrypoint() {
 	add_cleanup_handler trap_handler_reset_output_owner # make sure output folder is owned by pre-sudo/pre-Docker user if that's the case
 
 	# @TODO: So gigantic contention point here about logging the basic deps installation.
+	# 如果环境需要基础依赖，即需要安装额外的依赖包
 	if [[ "${ARMBIAN_COMMAND_REQUIRE_BASIC_DEPS}" == "yes" ]]; then
 		if [[ "${OFFLINE_WORK}" == "yes" ]]; then
 			display_alert "* " "You are working offline!"
@@ -139,7 +144,9 @@ function cli_entrypoint() {
 		else
 			# check and install the basic utilities;
 			# 感觉这里检测没有通过
+		display_alert "Red 00000000000" "debug"
 			LOG_SECTION="prepare_host_basic" do_with_logging prepare_host_basic # This includes the 'docker' case.
+		display_alert "Red 11111111111" "debug"
 		fi
 	fi
 
@@ -152,7 +159,7 @@ function cli_entrypoint() {
 	for config_file in "${ARMBIAN_CONFIG_FILES[@]}"; do
 		# 截取配置文件名和配置文件目录
 		local config_filename="${config_file##*/}" config_dir="${config_file%/*}"
-		display_alert "Red Sourcing config file full name" "${config_file}" "debug"
+		display_alert "################################### Red Sourcing config file full name" "${config_file}" "debug"
 		display_alert "Sourcing config file" "${config_filename}" "debug"
 
 		# use pushd/popd to change directory to the config file's directory, so that relative paths in the config file work.

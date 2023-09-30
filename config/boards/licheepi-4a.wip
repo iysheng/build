@@ -1,4 +1,4 @@
-# RISC-V LicheePi 4A
+# RISC-V LicheePi 4A 配置文件
 BOARD_NAME="LicheePi 4A"
 BOARDFAMILY="thead"
 BOARD_MAINTAINER="chainsx"
