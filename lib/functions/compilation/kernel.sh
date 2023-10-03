@@ -40,8 +40,13 @@ function compile_kernel() {
 	declare kernel_git_revision="${checked_out_revision}"
 	declare kernel_base_revision_ts="${checked_out_revision_ts}"
 	declare kernel_base_revision_date # Used for KBUILD_BUILD_TIMESTAMP in make.
-	kernel_base_revision_date="$(LC_ALL=C date -d "@${kernel_base_revision_ts}")"
-	display_alert "Using Kernel git revision" "${kernel_git_revision} at '${kernel_base_revision_date}'"
+	# 内核编译时间
+	echo "red-------------------${kernel_base_revision_ts}----"@${kernel_base_revision_ts}"---------------------"
+	# 强行修正编译时间
+	# kernel_base_revision_date="$(LC_ALL=C date -d "@${kernel_base_revision_ts}")"
+	kernel_base_revision_date="$(LC_ALL=C date -d "now")"
+	echo "red"${kernel_base_revision_date}"rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrred"
+	display_alert "red------------------------------------------------Using Kernel git revision" "${kernel_git_revision} at '${kernel_base_revision_date}'"
 
 	# Possibly 'make clean'.
 	LOG_SECTION="kernel_maybe_clean" do_with_logging do_with_hooks kernel_maybe_clean
