@@ -159,6 +159,7 @@ function artifact_rootfs_is_available_in_remote_cache() {
 	is_artifact_available_in_remote_cache
 }
 
+# 获取 rootfs 缓存文件
 function artifact_rootfs_obtain_from_remote_cache() {
 	obtain_artifact_from_remote_cache
 }

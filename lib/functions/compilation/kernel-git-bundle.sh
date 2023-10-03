@@ -51,7 +51,7 @@ function kernel_download_bundle_with_axel() {
 	display_alert "Downloading Kernel bundle" "${bundle_type}; this might take a long time" "info"
 	declare -a verbose_params=()
 	if_user_on_terminal_and_not_logging_add verbose_params "--verbose" "--alternate"
-	if_user_not_on_terminal_or_is_logging_add verbose_params "--quiet"
+	if_user_not_on_terminal_or_is_logging_add verbose_params "--verbose"
 	run_host_command_logged axel "${verbose_params[@]}" "--output=${linux_kernel_clone_bundle_file_tmp}" \
 		"${linux_clone_bundle_url}"
 }

@@ -124,7 +124,8 @@ function kernel_prepare_bare_repo_decide_shallow_or_full() {
 		ask_for_user_confirmation=1 # no tree exists, will be the first time. offer option for user to abort.
 
 		# TODO "magic number" here, make configurable
-		if [[ ${free_space_mib} -lt 32768 ]] || [[ ${device_backing_dir_is_slow} -eq 1 ]]; then
+		# 修改这里控制下载内核镜像时是 full 还是 shallow
+		if [[ ${free_space_mib} -lt $((32768/2)) ]] || [[ ${device_backing_dir_is_slow} -eq 1 ]]; then
 			decision="shallow"
 			decision_why="slow storage device (${device_backing_dir}) or low disk space (${free_space_mib} MiB)"
 		else
@@ -234,6 +235,7 @@ function kernel_prepare_bare_repo_from_oras_gitball() {
 	return 0
 }
 
+# 下载内核的压缩包
 function download_git_kernel_gitball_via_oras() {
 	# validate git_bundles_dir, git_kernel_ball_fn, and git_kernel_oras_ref are set
 	if [[ -z "${git_bundles_dir}" ]]; then
@@ -258,6 +260,7 @@ function download_git_kernel_gitball_via_oras() {
 	fi
 
 	# do_with_retries 5 xxx ? -- no -- oras_pull_artifact_file should do it's own retries.
+	# 应该是这里出错了
 	oras_pull_artifact_file "${git_kernel_oras_ref}" "${git_bundles_dir}" "${git_kernel_ball_fn}"
 
 	# sanity check

@@ -7,6 +7,7 @@
 # This file is a part of the Armbian Build Framework
 # https://github.com/armbian/build/
 
+# 内核编译
 function compile_kernel() {
 	declare kernel_work_dir="${SRC}/cache/sources/${LINUXSOURCEDIR}"
 	display_alert "Kernel build starting" "${LINUXSOURCEDIR}" "info"
@@ -27,8 +28,9 @@ function compile_kernel() {
 	declare git_kernel_oras_ref
 	kernel_prepare_bare_repo_decide_shallow_or_full # sets kernel_git_bare_tree, git_bundles_dir, git_kernel_ball_fn, git_kernel_oras_ref
 
-	LOG_SECTION="kernel_prepare_bare_repo_from_oras_gitball" do_with_logging do_with_hooks \
-		kernel_prepare_bare_repo_from_oras_gitball # this sets kernel_git_bare_tree
+	# 选择从源码树中拉取内核
+	LOG_SECTION="kernel_prepare_bare_repo_from_bundle" do_with_logging do_with_hooks \
+		kernel_prepare_bare_repo_from_bundle # this sets kernel_git_bare_tree
 
 	# prepare the working copy; this is the actual kernel source tree for this build
 	declare checked_out_revision_ts="" checked_out_revision="undetermined" # set by fetch_from_repo

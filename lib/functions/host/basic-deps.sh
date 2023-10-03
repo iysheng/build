@@ -11,10 +11,10 @@
 #
 # * installs only basic packages
 #
-function linux-version() {
-	local version=`uname -r | awk -F - '{print $1}'`
-	echo $version
-}
+# function linux-version() {
+	# local version=`uname -r | awk -F - '{print $1}'`
+	# echo $version
+# }
 
 function prepare_host_basic() {
 

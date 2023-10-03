@@ -226,6 +226,7 @@ function obtain_kernel_git_info_and_makefile() {
 	declare -g -r KERNEL_GIT_SHA1="${GIT_INFO_KERNEL[SHA1]}"
 }
 
+# 从源码编译内核
 function artifact_kernel_build_from_sources() {
 	compile_kernel
 

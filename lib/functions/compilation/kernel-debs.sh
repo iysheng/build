@@ -121,7 +121,8 @@ function create_kernel_deb() {
 	# display_alert "Running callback" "callback: ${callback_function}" "debug"
 	"${callback_function}" "${@}"
 
-	run_host_command_logged chown -R root:root "${package_directory}" # Fix ownership and permissions
+	# 执行修改权限相关命令
+	# run_host_command_logged chown -R root:root "${package_directory}" # Fix ownership and permissions
 	run_host_command_logged chmod -R go-w "${package_directory}"      # Fix ownership and permissions
 	run_host_command_logged chmod -R a+rX "${package_directory}"      # in case we are in a restrictive umask environment like 0077
 	run_host_command_logged chmod -R ug-s "${package_directory}"      # in case we build in a setuid/setgid directory

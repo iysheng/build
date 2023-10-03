@@ -17,8 +17,11 @@ function create_artifact_functions() {
 		"deploy_to_remote_cache"
 		"build_from_sources"
 	)
+	# rootfs_obtain_from_remote_cache
 	for func in "${funcs[@]}"; do
 		# 最后调用函数的函数名称是 artifact_xxxx_build_from_sources
+		# 逐个会组成多个函数名称
+		# eg： artifact_rootfs_cliadapter_pre_run
 		declare impl_func="artifact_${chosen_artifact_impl}_${func}"
 		if [[ $(type -t "${impl_func}") == function ]]; then
 			declare cmd
@@ -31,6 +34,7 @@ function create_artifact_functions() {
 					}
 				ARTIFACT_DEFINITION
 			)"
+			# 是在这里把这些组合的函数名称都执行了一遍
 			eval "${cmd}"
 		else
 			exit_with_error "Missing artifact implementation function '${impl_func}'"
