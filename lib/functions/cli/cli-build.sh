@@ -15,6 +15,7 @@ function cli_standard_build_pre_run() {
 	cli_standard_relaunch_docker_or_sudo
 }
 
+# build run 函数入口,根据堆栈来看，该函数是由函数 armbian_cli_run_command 调用来的
 function cli_standard_build_run() {
 	declare -g -r BUILDING_IMAGE=yes # Marker; meaning "we are building an image, not just an artifact"
 	declare -g -r NEEDS_BINFMT="yes" # Marker; make sure binfmts are installed during prepare_host_interactive

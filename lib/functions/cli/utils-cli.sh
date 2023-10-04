@@ -15,11 +15,13 @@
 #	parse_cmdline_params "${@}" # which fills the vars above, being global.
 function parse_cmdline_params() {
 	# 定义全局的存储 key=value 命令行参数和 cmd， cmd， 这些命令行参数
+	# 声明全局的外部变量
 	declare -A -g ARMBIAN_PARSED_CMDLINE_PARAMS=()
 	declare -a -g ARMBIAN_NON_PARAM_ARGS=()
 
 	# loop over the arguments parse them out
 	local arg
+	# ${@} 是传递进来的所有参数
 	for arg in "${@}"; do
 		if [[ "${arg}" == *=* ]]; then # contains an equal sign. it's a param.
 			local param_name param_value param_value_desc
@@ -28,13 +30,17 @@ function parse_cmdline_params() {
 			param_value=${arg##*=}
 			param_value_desc="${param_value:-(empty)}"
 			# Sanity check for the param name; it must be a valid bash variable name.
+			# 如果 key 的名字不是字母或者下划线开头有效的内容，那么也提示错误
 			if [[ "${param_name}" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
+				# 如果满足 key 的要求（即变量名的要求），那么分别将参数名和内容存储到变量
+				# ARMBIAN_PARSED_CMDLINE_PARAMS 和 ARMBIAN_CLI_RELAUNCH_PARAMS
 				ARMBIAN_PARSED_CMDLINE_PARAMS["${param_name}"]="${param_value}" # For current run.
 				ARMBIAN_CLI_RELAUNCH_PARAMS["${param_name}"]="${param_value}"   # For relaunch.
 				display_alert "Command line: parsed parameter '$param_name' to" "${param_value_desc}" "debug"
 			else
 				exit_with_error "Invalid cmdline param '${param_name}=${param_value_desc}'"
 			fi
+			# 如果不是 key=value 的形式，那么将这些内容
 		elif [[ "x${arg}x" != "xx" ]]; then # not a param, not empty, store it in the non-param array for later usage
 			local non_param_value="${arg}"
 			local non_param_value_desc="${non_param_value:-(empty)}"
@@ -225,7 +231,8 @@ function produce_relaunch_parameters() {
 
 function cli_standard_relaunch_docker_or_sudo() {
 	display_alert "Gonna relaunch" "EUID: ${EUID} -- PREFER_DOCKER:${PREFER_DOCKER}" "debug"
-	if [[ "${EUID}" == "0" || "${EUID}" == "1001" ]]; then # we're already root. Either running as real root, or already sudo'ed.
+	# if [[ "${EUID}" == "0" || "${EUID}" == "1001" ]]; then # we're already root. Either running as real root, or already sudo'ed.
+	if [[ "${EUID}" == "0" ]]; then # we're already root. Either running as real root, or already sudo'ed.
 		if [[ "${ARMBIAN_RELAUNCHED}" != "yes" && "${ALLOW_ROOT}" != "yes" ]]; then
 			display_alert "PROBLEM: don't run ./compile.sh as root or with sudo" "PROBLEM: don't run ./compile.sh as root or with sudo" "err"
 			if [[ -t 0 ]]; then # so... non-interactive builds *can* run as root. It's not supported, you'll get an error, but we'll proceed.
@@ -276,9 +283,9 @@ function cli_standard_relaunch_docker_or_sudo() {
 		declare -g ARMBIAN_CLI_FINAL_RELAUNCH_ENVS=()
 		produce_relaunch_parameters # produces ARMBIAN_CLI_FINAL_RELAUNCH_ARGS and ARMBIAN_CLI_FINAL_RELAUNCH_ENVS
 		# shellcheck disable=SC2093 # re-launching under sudo: replace the current shell, and never return.
-		# exec sudo --preserve-env "${ARMBIAN_CLI_FINAL_RELAUNCH_ENVS[@]}" bash "${SRC}/compile.sh" "${ARMBIAN_CLI_FINAL_RELAUNCH_ARGS[@]}" # MARK: relaunch done here!
+		exec sudo --preserve-env "${ARMBIAN_CLI_FINAL_RELAUNCH_ENVS[@]}" bash "${SRC}/compile.sh" "${ARMBIAN_CLI_FINAL_RELAUNCH_ARGS[@]}" # MARK: relaunch done here!
 		display_alert "WILL SUDO!!! -------------------------------------------" "warn"                                                                              # This should _never_ happen
-		exec bash "${SRC}/compile.sh" "${ARMBIAN_CLI_FINAL_RELAUNCH_ARGS[@]}" # MARK: relaunch done here!
+		# exec bash "${SRC}/compile.sh" "${ARMBIAN_CLI_FINAL_RELAUNCH_ARGS[@]}" # MARK: relaunch done here!
 		display_alert "AFTER SUDO!!!" "AFTER SUDO!!!" "warn"                                                                              # This should _never_ happen
 	fi
 }

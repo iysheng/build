@@ -187,7 +187,7 @@ function create_sources_list_and_deploy_repo_key() {
 			;;
 	esac
 
-	添加 armbian 仓库的 key
+	# 添加 armbian 仓库的 key
 	display_alert "Adding Armbian repository and authentication key" "${when} :: /etc/apt/sources.list.d/armbian.list" "info"
 
 	# apt-key add is getting deprecated

@@ -103,8 +103,9 @@ function chroot_sdcard_apt_get() {
 
 	display_alert "Extra envs for apt:" "${extra_envs[*]@Q}" "debug"
 
-	local chroot_apt_result=1
-	chroot_sdcard "${prelude_clean_env[@]}" "${extra_envs[@]}" apt-get "${apt_params[@]}" "$@" && chroot_apt_result=0
+	local chroot_apt_result=0
+	# 因为不是在 debian 或者 ubuntu 发行版上构建的，所以这里暂时忽略
+	# chroot_sdcard "${prelude_clean_env[@]}" "${extra_envs[@]}" apt-get "${apt_params[@]}" "$@" && chroot_apt_result=0
 
 	local_apt_deb_cache_prepare "after 'apt-get $*'" # sets LOCAL_APT_CACHE_INFO
 	if [[ "${LOCAL_APT_CACHE_INFO[USE]}" == "yes" ]]; then

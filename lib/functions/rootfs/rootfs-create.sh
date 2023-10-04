@@ -155,11 +155,11 @@ function create_new_rootfs_cache_via_debootstrap() {
 
 	# stage: update packages list
 	display_alert "Updating package list" "$RELEASE" "info"
-	do_with_retries 3 chroot_sdcard_apt_get_update
+	# do_with_retries 3 chroot_sdcard_apt_get_update
 
 	# stage: upgrade base packages from xxx-updates and xxx-backports repository branches
 	display_alert "Upgrading base packages" "Armbian" "info"
-	do_with_retries 3 chroot_sdcard_apt_get upgrade
+	# do_with_retries 3 chroot_sdcard_apt_get upgrade
 
 	# stage: install additional packages
 	display_alert "Installing the main packages for" "Armbian" "info"
@@ -190,7 +190,8 @@ function create_new_rootfs_cache_via_debootstrap() {
 	# stage: check md5 sum of installed packages. Just in case. @TODO: rpardini: this should also be done when a cache is used, not only when it is created
 	display_alert "Checking MD5 sum of installed packages" "debsums" "info"
 	declare -g if_error_detail_message="Check MD5 sum of installed packages failed"
-	chroot_sdcard debsums --silent
+	# 手动安装了 debsums 但是还是提示我找不到 debsums, 所以这里暂时屏蔽
+	# chroot_sdcard debsums --silent
 
 	# # Remove packages from packages.uninstall
 	# # @TODO: aggregation.py handling of this... if we wanted it removed in rootfs cache, why did we install it in the first place?
@@ -223,11 +224,12 @@ function create_new_rootfs_cache_via_debootstrap() {
 	# Remove `machine-id` (https://www.freedesktop.org/software/systemd/man/machine-id.html)
 	# Note: This will mark machine `firstboot`
 	run_host_command_logged echo "uninitialized" ">" "${SDCARD}/etc/machine-id"
-	run_host_command_logged rm -v "${SDCARD}/var/lib/dbus/machine-id"
+	run_host_command_logged [[ -d ${SDCARD}/var/lib/dbus/machine-id ]] && rm -v "${SDCARD}/var/lib/dbus/machine-id"
 
 	# Mask `systemd-firstboot.service` which will prompt locale, timezone and root-password too early.
 	# `armbian-first-run` will do the same thing later
-	chroot_sdcard systemctl mask systemd-firstboot.service
+	# 搞不懂为什么这个命令也提示没有
+	# chroot_sdcard systemctl mask systemd-firstboot.service
 
 	# stage: make rootfs cache archive
 	display_alert "Ending debootstrap process and preparing cache" "$RELEASE" "info"

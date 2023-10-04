@@ -9,8 +9,10 @@
 
 function cli_entrypoint() {
 	# array, readonly, global, for future reference, "exported" to shutup shellcheck
+	# 定义一个只读的，全局的，数组变量
 	declare -rg -x -a ARMBIAN_ORIGINAL_ARGV=("${@}")
 
+	# 这个默认应该是开的
 	if [[ "${ARMBIAN_ENABLE_CALL_TRACING}" == "yes" ]]; then
 		set -T # inherit return/debug traps
 		mkdir -p "${SRC}"/output/call-traces
@@ -23,14 +25,16 @@ function cli_entrypoint() {
 	# This would allow for custom commands and interceptors.
 
 	# Decide what we're gonna do. We've a few hardcoded, 1st-argument "commands".
+	# 定义了如下两个字典
 	declare -g -A ARMBIAN_COMMANDS_TO_HANDLERS_DICT ARMBIAN_COMMANDS_TO_VARS_DICT
-	# 定义了以上两个字典
 	armbian_register_commands # this defines the above two dictionaries
 
 	# Process the command line, separating params (XX=YY) from non-params arguments.
 	# That way they can be set in any order.
 	declare -A -g ARMBIAN_PARSED_CMDLINE_PARAMS=() # A dict of PARAM=VALUE
 	declare -a -g ARMBIAN_NON_PARAM_ARGS=()        # An array of all non-param arguments
+	# 解析命令行参数, 会将不带参数的命令行内容保存到数组 ARMBIAN_NON_PARAM_ARGS 中
+	# 将可以解析的内容存储到变量数组 ARMBIAN_PARSED_CMDLINE_PARAMS 中
 	parse_cmdline_params "${@}"                    # which fills the above vars.
 
 	# Now load the key=value pairs from cmdline into environment, before loading config or executing commands.
@@ -40,11 +44,13 @@ function cli_entrypoint() {
 	# From here on, no more ${1} or stuff. We've parsed it all into ARMBIAN_PARSED_CMDLINE_PARAMS or ARMBIAN_NON_PARAM_ARGS and ARMBIAN_COMMAND.
 
 	# Re-initialize logging, to take into account the new environment after parsing cmdline params.
+	# 日志系统初始化
 	logging_init
 
 	declare -a -g ARMBIAN_CONFIG_FILES=()                                            # fully validated, complete paths to config files.
 	declare -g ARMBIAN_COMMAND_HANDLER="" ARMBIAN_COMMAND="" ARMBIAN_COMMAND_VARS="" # only valid command and handler will ever be set here.
 	declare -g ARMBIAN_HAS_UNKNOWN_ARG="no"                                          # if any unknown params, bomb.
+	# 解析不带参数的命令行内容, 这种不带参数的命令行应该是更加重要的内容
 	for argument in "${ARMBIAN_NON_PARAM_ARGS[@]}"; do                               # loop over all non-param arguments, find commands and configs.
 		parse_each_cmdline_arg_as_command_param_or_config "${argument}"                 # sets all the vars above
 	done
