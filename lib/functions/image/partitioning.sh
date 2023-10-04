@@ -8,6 +8,7 @@
 # https://github.com/armbian/build/
 
 # prepare_partitions
+# 准备分区,这里还是做了很多工作的
 #
 # creates image file, partitions and fs
 # and mounts it to local dir
@@ -27,6 +28,7 @@ function prepare_partitions() {
 
 	# array copying in old bash versions is tricky, so having filesystems as arrays
 	# with attributes as keys is not a good idea
+	# 声明一些数组变量
 	declare -A parttype mkopts mkopts_label mkfs mountopts
 
 	parttype[ext4]=ext4
@@ -145,6 +147,7 @@ function prepare_partitions() {
 
 	# stage: create blank image
 	display_alert "Creating blank image for rootfs" "truncate: $sdsize MiB" "info"
+	# 创建一个空文件,用来存放 image
 	run_host_command_logged truncate "--size=${sdsize}M" "${SDCARD}".raw # please provide EVIDENCE of problems with this; using dd is very slow
 	wait_for_disk_sync "after truncate SDCARD.raw"
 
@@ -154,6 +157,7 @@ function prepare_partitions() {
 	local bootend=$(($rootstart - 1))
 
 	# stage: create partition table
+	# 创建分区表
 	display_alert "Creating partitions" "${bootfs:+/boot: $bootfs }root: $ROOTFS_TYPE" "info"
 	if [[ "${USE_HOOK_FOR_PARTITION}" == "yes" ]]; then
 		{ [[ "$IMAGE_PARTITION_TABLE" == "msdos" ]] && echo "label: dos" || echo "label: $IMAGE_PARTITION_TABLE"; } |
@@ -250,6 +254,7 @@ function prepare_partitions() {
 		fi
 
 		check_loop_device "$rootdevice"
+		# 创建 rootfs 文件
 		display_alert "Creating rootfs" "$ROOTFS_TYPE on $rootdevice"
 		run_host_command_logged mkfs.${mkfs[$ROOTFS_TYPE]} ${mkopts[$ROOTFS_TYPE]} ${mkopts_label[$ROOTFS_TYPE]:+${mkopts_label[$ROOTFS_TYPE]}"$ROOT_FS_LABEL"} "${rootdevice}"
 		[[ $ROOTFS_TYPE == ext4 ]] && run_host_command_logged tune2fs -o journal_data_writeback "$rootdevice"

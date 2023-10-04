@@ -23,6 +23,7 @@ function calculate_image_version() {
 	display_alert "Calculated image version" "${calculated_image_version}" "debug"
 }
 
+# 从 rootfs 创建 image
 function create_image_from_sdcard_rootfs() {
 	# create DESTIMG, hooks might put stuff there early.
 	mkdir -p "${DESTIMG}"
@@ -73,6 +74,7 @@ function create_image_from_sdcard_rootfs() {
 		fi
 		run_host_command_logged rsync -rLtWh --info=progress0,stats1 "$SDCARD/boot" "$MOUNT" # fat32
 	else
+		# ext4 系统要走这里
 		run_host_command_logged rsync -aHWXh --info=progress0,stats1 "$SDCARD/boot" "$MOUNT" # ext4
 	fi
 
@@ -162,6 +164,7 @@ function create_image_from_sdcard_rootfs() {
 	declare source_dir="${DESTIMG}"
 	declare destination_dir="${FINALDEST}"
 	declare source_files_prefix="${version}"
+	# 感觉这里是在将 uboot, kernel, rootfs 打包成一个 image
 	move_images_to_final_destination
 
 	return 0

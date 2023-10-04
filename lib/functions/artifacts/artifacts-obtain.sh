@@ -7,6 +7,8 @@
 # This file is a part of the Armbian Build Framework
 # https://github.com/armbian/build/
 
+# 传递进来的 chosen_artifact_impl 是 rootfs 的卡在这里了
+# artifact_prepare_version
 function create_artifact_functions() {
 	declare -a funcs=(
 		"cli_adapter_pre_run" "cli_adapter_config_prep"
@@ -21,10 +23,14 @@ function create_artifact_functions() {
 	for func in "${funcs[@]}"; do
 		# 最后调用函数的函数名称是 artifact_xxxx_build_from_sources
 		# 逐个会组成多个函数名称
-		# eg： artifact_rootfs_cliadapter_pre_run
+		# eg： artifact_rootfs_cli_adapter_pre_run
+		# eg： artifact_rootfs_prepare_version
 		declare impl_func="artifact_${chosen_artifact_impl}_${func}"
+		# 如果声明的函数存在，那么声明 cmd 变量
 		if [[ $(type -t "${impl_func}") == function ]]; then
 			declare cmd
+			# here-documents 将 ARTIFACT_DEFINITION 这段内容之内的东西作为 cat 的输入
+			# <<- 其中的 - 符号表示会删除 tab 符号
 			cmd="$(
 				cat <<- ARTIFACT_DEFINITION
 					function artifact_${func}() {
@@ -34,14 +40,17 @@ function create_artifact_functions() {
 					}
 				ARTIFACT_DEFINITION
 			)"
-			# 是在这里把这些组合的函数名称都执行了一遍
+			# 并没有在这里把这些组合的函数名称都执行了一遍
+			# 但是根据打印信息来看并没有,这里只是声明了相关的函数
 			eval "${cmd}"
 		else
 			exit_with_error "Missing artifact implementation function '${impl_func}'"
 		fi
 	done
 
-	# If ${chosen_artifact} is in ${DONT_BUILD_ARTIFACTS}, or if DONT_BUILD_ARTIFACTS contains 'any', override the build function with an error.
+	# If ${chosen_artifact} is in ${DONT_BUILD_ARTIFACTS}, 
+	# or if DONT_BUILD_ARTIFACTS contains 'any', 
+	# override the build function with an error.
 	if [[ "${DONT_BUILD_ARTIFACTS}" = *"${chosen_artifact}"* || "${DONT_BUILD_ARTIFACTS}" = *any* ]]; then
 		display_alert "Artifact '${chosen_artifact}' is in DONT_BUILD_ARTIFACTS, overriding build function with error" "DONT_BUILD_ARTIFACTS=${chosen_artifact}" "debug"
 		declare cmd
@@ -62,20 +71,24 @@ function create_artifact_functions() {
 function initialize_artifact() {
 	declare -g chosen_artifact="${1}"
 
-	# cant be empty, or have spaces nor commas
+	# can't be empty, or have spaces nor commas
 	[[ "x${chosen_artifact}x" == "xx" ]] && exit_with_error "Artifact name is empty"
 	[[ "${chosen_artifact}" == *" "* ]] && exit_with_error "Artifact name cannot contain spaces"
 	[[ "${chosen_artifact}" == *","* ]] && exit_with_error "Artifact name cannot contain commas"
 
 	armbian_register_artifacts
 	# 声明 chosen_artifact_impl, 在调用相关函数的时候会用到
+	# 该变量是从字典中选择出来的， 比如 kernel, uboot, u-boot, rootfs ...
+	# 目前卡在 rootfs 这里了哈
 	declare -g chosen_artifact_impl="${ARMBIAN_ARTIFACTS_TO_HANDLERS_DICT["${chosen_artifact}"]}"
-	echo "rrrrrrrrrrrrrrrrrrrred ${chosen_artifact_impl}"
+	echo "-------------------------------rrrrrrrrrrrrrrrrrrrred ${chosen_artifact_impl}"
 	[[ "x${chosen_artifact_impl}x" == "xx" ]] && exit_with_error "Unknown artifact '${chosen_artifact}'"
 	display_alert "artifact" "${chosen_artifact} :: ${chosen_artifact_impl}()" "info"
 	create_artifact_functions
+	echo "end-------------------------------rrrrrrrrrrrrrrrrrrrred ${chosen_artifact_impl}"
 }
 
+# 构建 artifact
 function obtain_complete_artifact() {
 	declare -g artifact_name="undetermined"
 	declare -g artifact_type="undetermined"
@@ -94,8 +107,10 @@ function obtain_complete_artifact() {
 	declare -a -g artifact_debs_reversion_functions=()
 
 	# Contentious; it might be that prepare_version is complex enough to warrant more than 1 logging section.
+	# 实际调用的是函数 artifact_initial 中新建的相关 artifact(比如 kernel, rootfs ...) 函数
 	LOG_SECTION="artifact_prepare_version" do_with_logging artifact_prepare_version
 
+	# 在这里会打印这几个变量名称
 	debug_var artifact_name
 	debug_var artifact_type
 	debug_var artifact_version
@@ -115,6 +130,7 @@ function obtain_complete_artifact() {
 	declare -a artifact_map_debs_reversioned_values=()
 
 	# validate artifact_type... it must be one of the supported types
+	# rootfs 对应的是 tar.zst
 	case "${artifact_type}" in
 		deb | deb-tar)
 			# check artifact_base_dir and artifact_base_dir are 'undetermined', or bomb; deb/deb-tar shouldn't set those anymore
@@ -182,7 +198,7 @@ function obtain_complete_artifact() {
 			artifact_map_debs_reversioned_values=("${artifact_map_debs_reversioned[@]}")
 
 			;;
-		tar.zst)
+		tar.zst) # rootfs 对应的是这种类型
 			# tar.zst (rootfs) must specify the directories directly, since we can't determine from deb info.
 			[[ "x${artifact_base_dir}x" == "xx" || "${artifact_base_dir}" == "undetermined" ]] && exit_with_error "artifact_base_dir is not set after artifact_prepare_version"
 			[[ "x${artifact_final_file}x" == "xx" || "${artifact_final_file}" == "undetermined" ]] && exit_with_error "artifact_final_file is not set after artifact_prepare_version"
@@ -206,6 +222,7 @@ function obtain_complete_artifact() {
 	mkdir -p "${artifact_base_dir}"
 
 	# compute artifact_final_file relative to ${SRC} but don't use realpath
+	# 获取 artifact 相对路径,去除  ${SRC}/ 这部分内容
 	declare -g artifact_file_relative="${artifact_final_file#${SRC}/}"
 	github_actions_add_output artifact_file_relative "${artifact_file_relative}"
 
@@ -223,6 +240,7 @@ function obtain_complete_artifact() {
 	if [[ -n "${OCI_TARGET_BASE}" ]]; then
 		artifact_oci_target_base="${OCI_TARGET_BASE}"
 	else
+		# 走的是这里获取 default oci target
 		artifact_get_default_oci_target
 	fi
 
@@ -242,11 +260,13 @@ function obtain_complete_artifact() {
 	declare -g artifact_exists_in_remote_cache="undetermined"
 
 	# Ignore both local and remote cache if we're deploying to remote or if ARTIFACT_IGNORE_CACHE=yes
+	# 这里一般为 no ???
 	if [[ "${ARTIFACT_IGNORE_CACHE}" != "yes" && "${deploy_to_remote:-"no"}" != "yes" ]]; then
 
 		# If NOT deploying to remote, check if the reversioned artifact exists in local cache.
 		if [[ "${deploy_to_remote:-"no"}" != "yes" ]]; then
 			LOG_SECTION="artifact_is_available_in_revisioned_local_cache" do_with_logging artifact_is_available_in_revisioned_local_cache
+			# 打印为 "no_checked"
 			debug_var artifact_exists_in_local_reversioned_cache
 		fi
 
@@ -254,11 +274,13 @@ function obtain_complete_artifact() {
 		if [[ "${artifact_exists_in_local_reversioned_cache}" != "yes" ]]; then
 
 			LOG_SECTION="artifact_is_available_in_local_cache" do_with_logging artifact_is_available_in_local_cache
+			# 打印为 yes
 			debug_var artifact_exists_in_local_cache
 
 			# If available in local cache, we're done (except for deb-tar which needs unpacking...)
 			if [[ "${artifact_exists_in_local_cache}" == "yes" ]]; then
 				display_alert "artifact" "exists in local cache: ${artifact_name} ${artifact_version}" "debug"
+				# 从 local_cache 中解包
 				LOG_SECTION="unpack_artifact_from_local_cache" do_with_logging unpack_artifact_from_local_cache
 			else
 				# If not available in local cache, check remote cache.
@@ -319,8 +341,10 @@ function obtain_complete_artifact() {
 		# not deploying to remote cache. reversion the artifact, unless that was found in caches.
 		# reversioning removes the original in packages-hashed.
 		debug_dict artifact_map_debs_reversioned
+		# 应该是解完包之后走到了这里,这个函数很快执行完了
 		LOG_SECTION="artifact_reversion_for_deployment" do_with_logging artifact_reversion_for_deployment
 	fi
+	display_alert "reddddddddddddddddd---------- oh no it's done here"
 }
 
 function artifact_dump_json_info() {
@@ -387,6 +411,8 @@ function dump_artifact_config() {
 }
 
 # This is meant to be run after config, inside default build.
+# 是通过这个函数完成相关内容的初始化
+# 构建指定的 artifact ${WHAT}
 function build_artifact_for_image() {
 	initialize_artifact "${WHAT}"
 
@@ -398,6 +424,8 @@ function build_artifact_for_image() {
 		display_alert "Ignoring artifact cache for kernel" "KERNEL_CONFIGURE=yes" "info"
 		ARTIFACT_IGNORE_CACHE="yes" obtain_complete_artifact
 	else
+		# 通过这里完成 artifact 内容的执行
+		# 如果是 rootfs 会走到这里
 		obtain_complete_artifact
 	fi
 

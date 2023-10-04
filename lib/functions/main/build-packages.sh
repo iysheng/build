@@ -105,6 +105,7 @@ function main_default_build_packages() {
 		declare -A artifact_map_debs_reversioned=()
 		declare artifact_version
 
+		# 通过这里进行 artifact 构建的
 		WHAT="${one_artifact}" build_artifact_for_image
 
 		# store info about this artifact's debs and packages

@@ -19,13 +19,13 @@ function mount_chroot() {
 	mkdir -p "${target}/run/user/0"
 
 	# tmpfs size=50% is the Linux default, but we need more.
-	mount -t tmpfs -o "size=99%" tmpfs "${target}/tmp"
-	mount -t tmpfs -o "size=99%" tmpfs "${target}/var/tmp"
-	mount -t tmpfs -o "size=99%" tmpfs "${target}/run/user/0"
-	mount -t proc chproc "${target}"/proc
-	mount -t sysfs chsys "${target}"/sys
-	mount --bind /dev "${target}"/dev
-	mount -t devpts chpts "${target}"/dev/pts || mount --bind /dev/pts "${target}"/dev/pts
+	sudo mount -t tmpfs -o "size=99%" tmpfs "${target}/tmp"
+	sudo mount -t tmpfs -o "size=99%" tmpfs "${target}/var/tmp"
+	sudo mount -t tmpfs -o "size=99%" tmpfs "${target}/run/user/0"
+	sudo mount -t proc chproc "${target}"/proc
+	sudo mount -t sysfs chsys "${target}"/sys
+	sudo mount --bind /dev "${target}"/dev
+	sudo mount -t devpts chpts "${target}"/dev/pts || sudo mount --bind /dev/pts "${target}"/dev/pts
 }
 
 # umount_chroot <target>

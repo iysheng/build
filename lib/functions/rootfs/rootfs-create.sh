@@ -80,15 +80,17 @@ function create_new_rootfs_cache_via_debootstrap() {
 
 	deboostrap_arguments+=("--foreign") # release name
 
+	# 这里打印出来的 mirror 是 http://ports.ubuntu.com/
 	deboostrap_arguments+=("${RELEASE}" "${SDCARD}/" "${debootstrap_apt_mirror}") # release, path and mirror; always last, positional arguments.
 
-	run_host_command_logged debootstrap "${deboostrap_arguments[@]}" || {
+	run_host_command_logged sudo debootstrap "${deboostrap_arguments[@]}" || {
 		exit_with_error "Debootstrap first stage failed" "${RELEASE} ${DESKTOP_APPGROUPS_SELECTED} ${DESKTOP_ENVIRONMENT} ${BUILD_MINIMAL}"
 	}
 	[[ ! -f ${SDCARD}/debootstrap/debootstrap ]] && exit_with_error "Debootstrap first stage did not produce marker file"
 
 	skip_target_check="yes" local_apt_deb_cache_prepare "after debootstrap first stage" # just for size reference in logs; skip the target check: debootstrap uses it for second stage.
 
+	# 是不是这一部分不做也可以？？？和 qemu 有关的东西
 	deploy_qemu_binary_to_chroot "${SDCARD}" # this is cleaned-up later by post_debootstrap_tweaks() @TODO: which is too late for a cache
 
 	display_alert "Installing base system" "Stage 2/2" "info"

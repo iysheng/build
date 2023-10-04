@@ -205,7 +205,8 @@ function compile_armbian-bsp-cli() {
 	fingerprint_image "${destination}/etc/armbian.txt"
 
 	# fixing permissions (basic), reference: dh_fixperms
-	find "${destination}" -print0 2> /dev/null | xargs -0r chown --no-dereference 0:0
+	# 取消修改权限注释,这部分后续应该需要 sudo 权限
+	# find "${destination}" -print0 2> /dev/null | xargs -0r chown --no-dereference 0:0
 	find "${destination}" ! -type l -print0 2> /dev/null | xargs -0r chmod 'go=rX,u+rw,a-s'
 
 	if [[ "${SHOW_DEBUG}" == "yes" ]]; then

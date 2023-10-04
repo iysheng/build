@@ -7,6 +7,7 @@
 # This file is a part of the Armbian Build Framework
 # https://github.com/armbian/build/
 
+# 注册 artifacts 到字典变量
 function armbian_register_artifacts() {
 
 	declare -g -A ARMBIAN_ARTIFACTS_TO_HANDLERS_DICT=(

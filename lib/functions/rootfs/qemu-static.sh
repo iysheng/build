@@ -14,7 +14,7 @@ function deploy_qemu_binary_to_chroot() {
 
 	if [[ ! -f "${chroot_target}/usr/bin/${QEMU_BINARY}" ]]; then
 		display_alert "Deploying qemu-user-static binary to chroot" "${QEMU_BINARY}" "debug"
-		run_host_command_logged cp -pv "/usr/bin/${QEMU_BINARY}" "${chroot_target}/usr/bin/"
+		run_host_command_logged sudo cp -pv "/usr/bin/${QEMU_BINARY}" "${chroot_target}/usr/bin/"
 	else
 		display_alert "qemu-user-static binary already deployed, skipping" "${QEMU_BINARY}" "debug"
 	fi

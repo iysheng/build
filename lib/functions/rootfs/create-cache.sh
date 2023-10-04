@@ -73,6 +73,7 @@ function create_new_rootfs_cache() {
 }
 
 # this builds/gets cached rootfs artifact, extracts it to "${SDCARD}"
+# 从 cached 的 rootfs 中拆开根文件系统模板
 function get_or_create_rootfs_cache_chroot_sdcard() {
 	if [[ "${ROOT_FS_CREATE_ONLY}" == yes ]]; then
 		exit_with_error "Using deprecated ROOT_FS_CREATE_ONLY=yes, that is not longer supported. use 'rootfs' CLI command."
@@ -80,17 +81,23 @@ function get_or_create_rootfs_cache_chroot_sdcard() {
 
 	# build the rootfs artifact; capture the filename...
 	declare -g artifact_final_file artifact_version artifact_final_file artifact_file_relative
+	# 开始构建 rootfs
 	WHAT="rootfs" build_artifact_for_image # has its own logging sections, for now
 	declare -g cache_fname="${artifact_final_file}"
 
 	# Setup the cleanup handler, possibly "again", since the artifact already set it up and consumed it, if cache missed.
+	# 准备 rootfs 的构建参数
 	LOG_SECTION="prepare_rootfs_build_params_and_trap" do_with_logging prepare_rootfs_build_params_and_trap
 
+	# 解压 rootfs 文件（这个应该是模板文件）
 	LOG_SECTION="extract_rootfs_artifact" do_with_logging extract_rootfs_artifact
 	return 0
 }
 
+# 解压 rootfs 模板文件，这个模板文件是根据选定的配置从网上下载的
 function extract_rootfs_artifact() {
+	# ${xx:?hello} 如果 xx 存在并且不为空, 打印错误信息 xx 并且追加 hello
+	# 实际测试这里会打印错误信息
 	: "${artifact_file_relative:?artifact_file_relative is not set}"
 	: "${artifact_final_file:?artifact_final_file is not set}"
 	# compatibility with legacy code...
@@ -121,11 +128,13 @@ function extract_rootfs_artifact() {
 
 	wait_for_disk_sync "after restoring rootfs cache"
 
+	# 更新 /etc/resolv.conf 文件，这里包含了 dns 信息
 	run_host_command_logged rm -v "${SDCARD}"/etc/resolv.conf
 	run_host_command_logged echo "nameserver ${NAMESERVER}" ">" "${SDCARD}"/etc/resolv.conf
 
 	# all sources etc.
 	# armbian repo is NOT yet included here, since we'll be building the image, and don't want the repo interferring.
+	# 部署仓库 key 有关的内容, 这个阶段是 image-early
 	create_sources_list_and_deploy_repo_key "image-early" "${RELEASE}" "${SDCARD}/"
 
 	return 0

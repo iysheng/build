@@ -52,6 +52,7 @@ function artifact_rootfs_prepare_version() {
 	yyyymm="$(date +%Y%m)"
 
 	# outer scope
+	# 赋值相关变量的值
 	artifact_version="${yyyymm}-${rootfs_cache_id}"
 	artifact_version_reason="${reasons[*]}"
 	artifact_name="rootfs-${ARCH}-${RELEASE}-${cache_type}"

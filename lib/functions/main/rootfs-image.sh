@@ -11,11 +11,13 @@ function build_rootfs_and_image() {
 	display_alert "Checking for rootfs cache" "$(echo "${BRANCH} ${BOARD} ${RELEASE} ${DESKTOP_APPGROUPS_SELECTED} ${DESKTOP_ENVIRONMENT} ${BUILD_MINIMAL}" | tr -s " ")" "info"
 
 	# get a basic rootfs, either from cache or from scratch
+	# 获取 rootfs 从 cache(已有的 rootfs) 或者从头开始编译并创建
 	get_or_create_rootfs_cache_chroot_sdcard # only occurrence of this; has its own logging sections
 
 	# stage: with a basic rootfs available, we mount the chroot and work on it
 	LOG_SECTION="mount_chroot_sdcard" do_with_logging mount_chroot "${SDCARD}"
 
+	# here document 语法
 	call_extension_method "pre_install_distribution_specific" "config_pre_install_distribution_specific" <<- 'PRE_INSTALL_DISTRIBUTION_SPECIFIC'
 		*give config a chance to act before install_distribution_specific*
 		Called after `create_rootfs_cache` (_prepare basic rootfs: unpack cache or create from scratch_) but before `install_distribution_specific` (_install distribution and board specific applications_).
@@ -24,6 +26,7 @@ function build_rootfs_and_image() {
 	# stage: install kernel and u-boot packages
 	# install distribution and board specific applications
 
+	# 安装发行版和板级相关的应用
 	LOG_SECTION="install_distribution_specific_${RELEASE}" do_with_logging install_distribution_specific
 	LOG_SECTION="install_distribution_agnostic" do_with_logging install_distribution_agnostic
 
@@ -40,9 +43,11 @@ function build_rootfs_and_image() {
 	LOG_SECTION="customize_image" do_with_logging customize_image
 
 	# Deploy the full apt lists, including the Armbian repo.
+	# 继续部署 key 的仓库源等内容，这个阶段是 image-late
 	create_sources_list_and_deploy_repo_key "image-late" "${RELEASE}" "${SDCARD}/"
 
 	# remove packages that are no longer needed. rootfs cache + uninstall might have leftovers.
+	# 移除不需要的软件包
 	LOG_SECTION="apt_purge_unneeded_packages_and_clean_apt_caches" do_with_logging apt_purge_unneeded_packages_and_clean_apt_caches
 
 	# for IMAGES (not the rootfs cache!), we wanna ship a valid /var/lib/apt/lists.
@@ -56,6 +61,7 @@ function build_rootfs_and_image() {
 	fi
 
 	# for reference, debugging / sanity checking
+	# 列出已经安装的包
 	LOG_SECTION="list_installed_packages" do_with_logging list_installed_packages
 
 	LOG_SECTION="post_debootstrap_tweaks" do_with_logging post_debootstrap_tweaks
@@ -77,10 +83,14 @@ function build_rootfs_and_image() {
 
 	#------------------------------------ DOWN HERE IT's 'image' stuff -------------------------------
 
+	# 准备分区
 	LOG_SECTION="prepare_partitions" do_with_logging prepare_partitions
+	echo "redddddddddddddddddd will create_image_from_sdcard_rootfs"
+	# 创建 image
 	LOG_SECTION="create_image_from_sdcard_rootfs" do_with_logging create_image_from_sdcard_rootfs
 
 	# Completely and recursively unmount the directory. --> This will remove the tmpfs mount too <--
+	# 递归式地卸载,之前测试应该是在这里出的问题
 	umount_chroot_recursive "${SDCARD}" "SDCARD rootfs finished"
 
 	# Remove the dir

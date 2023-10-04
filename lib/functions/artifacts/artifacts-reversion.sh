@@ -18,10 +18,12 @@ function artifact_calculate_reversioning_hash() {
 	return 0
 }
 
+# 标准的 artifact reversion 部署
 function standard_artifact_reversion_for_deployment() {
 	display_alert "Reversioning package" "re-version '${artifact_name}(${artifact_type})::${artifact_version}' to '${artifact_final_version_reversioned}'" "info"
 
 	declare artifact_mapped_deb one_artifact_deb_package
+	# ${!xxx[@]} 引用 xxx 数组中所有赋值变量的索引
 	for one_artifact_deb_package in "${!artifact_map_packages[@]}"; do
 		# find the target dir and full path to the reversioned file
 		declare deb_versioned_rel_path="${artifact_map_debs_reversioned["${one_artifact_deb_package}"]}"

@@ -92,6 +92,7 @@ function install_distribution_specific() {
 # create_sources_list_and_deploy_repo_key <when> <release> <basedir>
 #
 # <when>: rootfs|image
+# release 是 ubuntu 的版本代号
 # <release>: bullseye|bookworm|sid|focal|jammy|kinetic|lunar
 # <basedir>: path to root directory
 #
@@ -167,7 +168,9 @@ function create_sources_list_and_deploy_repo_key() {
 			fi
 			;;
 
+			# 选定的是 jammy 版本的 ubuntu
 		focal | jammy | kinetic | lunar)
+		# 将指定的包源路径重定向到配置文件 etc/apt/sources.list
 			cat <<- EOF > "${basedir}"/etc/apt/sources.list
 				deb http://${UBUNTU_MIRROR} $release main restricted universe multiverse
 				#deb-src http://${UBUNTU_MIRROR} $release main restricted universe multiverse
@@ -184,21 +187,22 @@ function create_sources_list_and_deploy_repo_key() {
 			;;
 	esac
 
+	添加 armbian 仓库的 key
 	display_alert "Adding Armbian repository and authentication key" "${when} :: /etc/apt/sources.list.d/armbian.list" "info"
 
 	# apt-key add is getting deprecated
-	APT_VERSION=$(chroot "${basedir}" /bin/bash -c "apt --version | cut -d\" \" -f2")
-	if linux-version compare "${APT_VERSION}" ge 2.4.1; then
-		# add armbian key
-		mkdir -p "${basedir}"/usr/share/keyrings
-		# change to binary form
-		gpg --dearmor < "${SRC}"/config/armbian.key > "${basedir}"/usr/share/keyrings/armbian.gpg
-		SIGNED_BY="[signed-by=/usr/share/keyrings/armbian.gpg] "
-	else
-		# use old method for compatibility reasons # @TODO: rpardini: not gonna fix this?
-		cp "${SRC}"/config/armbian.key "${basedir}"
-		chroot "${basedir}" /bin/bash -c "cat armbian.key | apt-key add -"
-	fi
+	# APT_VERSION=$(chroot "${basedir}" /bin/bash -c "apt --version | cut -d\" \" -f2")
+	# if linux-version compare "${APT_VERSION}" ge 2.4.1; then
+		# # add armbian key
+		# mkdir -p "${basedir}"/usr/share/keyrings
+		# # change to binary form
+		# gpg --dearmor < "${SRC}"/config/armbian.key > "${basedir}"/usr/share/keyrings/armbian.gpg
+		# SIGNED_BY="[signed-by=/usr/share/keyrings/armbian.gpg] "
+	# else
+		# # use old method for compatibility reasons # @TODO: rpardini: not gonna fix this?
+		# cp "${SRC}"/config/armbian.key "${basedir}"
+		# chroot "${basedir}" /bin/bash -c "cat armbian.key | apt-key add -"
+	# fi
 
 	declare -a components=()
 	if [[ "${when}" == "image"* ]]; then # only include the 'main' component when deploying to image (early or late)
@@ -208,6 +212,8 @@ function create_sources_list_and_deploy_repo_key() {
 	components+=("${RELEASE}-desktop") # desktop contains packages Igor picks from other repos
 
 	# stage: add armbian repository and install key
+	# 清华源
+	echo  "reddddddddddddddddd ----------  download mirrot  $DOWNLOAD_MIRROR reddd"
 	if [[ $DOWNLOAD_MIRROR == "china" ]]; then
 		echo "deb ${SIGNED_BY}https://mirrors.tuna.tsinghua.edu.cn/armbian $RELEASE ${components[*]}" > "${basedir}"/etc/apt/sources.list.d/armbian.list
 	elif [[ $DOWNLOAD_MIRROR == "bfsu" ]]; then
@@ -228,6 +234,7 @@ function create_sources_list_and_deploy_repo_key() {
 	declare CUSTOM_REPO_WHEN="${when}"
 
 	# Let user customize
+	# 调用用户自定义的 hook 函数
 	call_extension_method "custom_apt_repo" <<- 'CUSTOM_APT_REPO'
 		*customize apt sources.list.d and/or deploy repo keys*
 		Called after core Armbian has finished setting up SDCARD's sources.list and sources.list.d/armbian.list.
