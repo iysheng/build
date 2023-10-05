@@ -13,6 +13,7 @@
 #
 function prepare_host_basic() {
 
+	return
 	# command:package1 package2 ...
 	# list of commands that are neeeded:packages where this command is
 	local check_pack install_pack

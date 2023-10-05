@@ -352,6 +352,7 @@ function adaptative_prepare_host_dependencies() {
 function install_host_dependencies() {
 	display_alert "Installing build dependencies" "$*" "debug"
 
+	return
 	# don't prompt for apt cacher selection. this is to skip the prompt only, since we'll manage acng config later.
 	local sudo_prefix="" && is_root_or_sudo_prefix sudo_prefix # nameref; "sudo_prefix" will be 'sudo' or ''
 	${sudo_prefix} echo "apt-cacher-ng    apt-cacher-ng/tunnelenable      boolean false" | ${sudo_prefix} debconf-set-selections

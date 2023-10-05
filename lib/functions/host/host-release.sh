@@ -28,6 +28,7 @@ function obtain_and_check_host_release_and_arch() {
 			;;
 	esac
 
+	declare -g NO_HOST_RELEASE_CHECK=yes
 	# Ubuntu Jammy x86_64 or arm64 is the only fully supported host OS release
 	# Using Docker/VirtualBox is the only supported way to run the build script on other Linux distributions
 	#
