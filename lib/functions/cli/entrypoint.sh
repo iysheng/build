@@ -64,6 +64,7 @@ function cli_entrypoint() {
 	# @TODO: Have a config that is always included? "${SRC}/userpatches/config-default.conf" ?
 
 	# If we don't have a command decided yet, use the undecided command.
+	# 如果没有要执行的命令那么直接返回错误
 	if [[ "${ARMBIAN_COMMAND}" == "" ]]; then
 		display_alert "No command found, using default" "undecided" "debug"
 		ARMBIAN_COMMAND="undecided"
@@ -81,6 +82,7 @@ function cli_entrypoint() {
 
 		declare -g ARMBIAN_COMMAND_REQUIRE_BASIC_DEPS="no" # reset this before every pre_run, so only the last one wins.
 		ARMBIAN_COMMAND="${ARMBIAN_CHANGE_COMMAND_TO}"
+		# build
 		armbian_prepare_cli_command_to_run "${ARMBIAN_COMMAND}"
 
 		ARMBIAN_CHANGE_COMMAND_TO=""
@@ -124,6 +126,7 @@ function cli_entrypoint() {
 	declare -g -r EXTENSION_MANAGER_TMP_DIR="${WORKDIR_BASE_TMP}/extensions-${ARMBIAN_BUILD_UUID}" # EXTENSION_MANAGER_TMP_DIR used to store extension-composed functions
 
 	# @TODO: These are used only by rootfs/image actual build, move there...
+	# SDCARD 的名字是 rootfs-对应一个 UUID
 	declare -g -r SDCARD="${WORKDIR_BASE_TMP}/rootfs-${ARMBIAN_BUILD_UUID}" # SDCARD (which is NOT an sdcard, but will be, maybe, one day) is where we work the rootfs before final imaging. "rootfs" stage.
 	declare -g -r MOUNT="${WORKDIR_BASE_TMP}/mount-${ARMBIAN_BUILD_UUID}"   # MOUNT ("mounted on the loop") is the mounted root on final image (via loop). "image" stage
 	# 声明目标镜像文件名
@@ -194,6 +197,7 @@ function cli_entrypoint() {
 	error_if_lib_tag_set # make sure users are not thrown off by using old parameter which does nothing anymore; explain
 
 	display_alert "Executing final CLI command" "${ARMBIAN_COMMAND}" "debug"
+	# 开始执行 command 了？？？
 	armbian_cli_run_command
 	display_alert "Done Executing final CLI command" "${ARMBIAN_COMMAND}" "debug"
 

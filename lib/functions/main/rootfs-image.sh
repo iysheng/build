@@ -27,8 +27,8 @@ function build_rootfs_and_image() {
 	# install distribution and board specific applications
 
 	# 安装发行版和板级相关的应用
-	LOG_SECTION="install_distribution_specific_${RELEASE}" do_with_logging install_distribution_specific
-	LOG_SECTION="install_distribution_agnostic" do_with_logging install_distribution_agnostic
+	# LOG_SECTION="install_distribution_specific_${RELEASE}" do_with_logging install_distribution_specific
+	# LOG_SECTION="install_distribution_agnostic" do_with_logging install_distribution_agnostic
 
 	# install locally built packages  #  @TODO: armbian-nextify this eventually
 	#[[ $EXTERNAL_NEW == compile ]] && LOG_SECTION="packages_local" do_with_logging chroot_installpackages_local

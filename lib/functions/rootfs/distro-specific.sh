@@ -7,6 +7,7 @@
 # This file is a part of the Armbian Build Framework
 # https://github.com/armbian/build/
 
+# 安装和发行版有关的文件
 function install_distribution_specific() {
 	display_alert "Applying distribution specific tweaks for" "${RELEASE:-}" "info"
 

@@ -32,6 +32,7 @@ function create_image_from_sdcard_rootfs() {
 	add_cleanup_handler trap_handler_cleanup_destimg
 
 	# calculate image filename, and store it in readonly global variable "version", for legacy reasons.
+	# 这里为什么不用 -g 选项， -g 选项是要跨文件的么
 	declare calculated_image_version="undetermined"
 	calculate_image_version
 	declare -r -g version="${calculated_image_version}" # global readonly from here
@@ -39,6 +40,7 @@ function create_image_from_sdcard_rootfs() {
 	# nilfs2 fs does not have extended attributes support, and have to be ignored on copy
 	if [[ $ROOTFS_TYPE == nilfs2 ]]; then rsync_ea=""; fi
 	if [[ $ROOTFS_TYPE != nfs ]]; then
+		# 将 $SDCARD 中的内容复制到 $MOUNT 目录
 		display_alert "Copying files via rsync to" "/ (MOUNT root)"
 		run_host_command_logged rsync -aHWh $rsync_ea \
 			--exclude="/boot" \
@@ -75,6 +77,7 @@ function create_image_from_sdcard_rootfs() {
 		run_host_command_logged rsync -rLtWh --info=progress0,stats1 "$SDCARD/boot" "$MOUNT" # fat32
 	else
 		# ext4 系统要走这里
+		# 复制 boot 目录下的内容到 mount
 		run_host_command_logged rsync -aHWXh --info=progress0,stats1 "$SDCARD/boot" "$MOUNT" # ext4
 	fi
 
@@ -84,13 +87,15 @@ function create_image_from_sdcard_rootfs() {
 	PRE_UPDATE_INITRAMFS
 
 	# stage: create final initramfs
-	[[ -n $KERNELSOURCE ]] && {
-		update_initramfs "$MOUNT"
-	}
+	# 如果内核不为空，那么更新 initramfs
+	# [[ -n $KERNELSOURCE ]] && {
+		# update_initramfs "$MOUNT"
+	# }
 
 	# DEBUG: print free space @TODO this needs work, grepping might not be ideal here
 	local freespace
 	freespace=$(LC_ALL=C df -h || true) # don't break on failures
+	# -v 表示传递参数到 awk
 	display_alert "Free SD cache" "$(echo -e "$freespace" | awk -v mp="${SDCARD}" '$6==mp {print $5}')" "info"
 	display_alert "Mount point" "$(echo -e "$freespace" | awk -v mp="${MOUNT}" '$6==mp {print $5}')" "info"
 

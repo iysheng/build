@@ -20,7 +20,7 @@
 # since Debian buster, it has to be called within create_image() on the $MOUNT
 # path instead of $SDCARD (which can be a tmpfs and breaks cryptsetup-initramfs).
 # see: https://github.com/armbian/build/issues/1584
-update_initramfs() {
+function update_initramfs() {
 	local chroot_target=$1 target_dir
 	target_dir="$(find "${chroot_target}/lib/modules"/ -maxdepth 1 -type d -name "*${IMAGE_INSTALLED_KERNEL_VERSION}*")" # @TODO: rpardini: this will break when we add multi-kernel images
 	local initrd_kern_ver initrd_file initrd_cache_key initrd_cache_file_path initrd_hash

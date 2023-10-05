@@ -59,9 +59,11 @@ function apply_cmdline_params_to_env() {
 	shift
 
 	# Loop over the dictionary and apply the values to the environment.
+	# 引用所有赋值的变量的索引
 	for param_name in "${!ARMBIAN_PARSED_CMDLINE_PARAMS[@]}"; do
 		local param_value param_value_desc current_env_value
 		# get the current value from the environment
+		# 将 param_name 的值作为新的变量名, 这是新版 bash 内置的语法
 		current_env_value="${!param_name}"
 		current_env_value_desc="${!param_name-(unset)}"
 		current_env_value_desc="${current_env_value_desc:-(empty)}"
@@ -73,6 +75,7 @@ function apply_cmdline_params_to_env() {
 		if [[ -z "${!param_name+x}" ]] || [[ "${current_env_value}" != "${param_value}" ]]; then
 			display_alert "Applying cmdline param" "'$param_name': '${current_env_value_desc}' --> '${param_value_desc}' ${__my_reason}" "cmdline"
 			# use `declare -g` to make it global, we're in a function.
+			# 将该变量变成全局的,可以跨文件的
 			eval "declare -g $param_name=\"$param_value\""
 		else
 			# rpardini: strategic amount of spacing in log files show the kinda neuroticism that drives me.
@@ -99,6 +102,9 @@ function armbian_prepare_cli_command_to_run() {
 		done
 	fi
 
+	# 对于 build 执行的函数分别是
+	# cli_standard_build_pre_run
+	# cli_standard_build_run
 	local pre_run_function_name="cli_${ARMBIAN_COMMAND_HANDLER}_pre_run"
 	local run_function_name="cli_${ARMBIAN_COMMAND_HANDLER}_run"
 
@@ -115,6 +121,7 @@ function armbian_prepare_cli_command_to_run() {
 		eval "$(
 			cat <<- EOF
 				display_alert "Setting up pre-run function for command" "${ARMBIAN_COMMAND}: ${pre_run_function_name}" "debug"
+				# 定义了一个新的函数 armbian_cli_pre_run_command 该函数会调用 cli_standard_build_pre_run
 				function armbian_cli_pre_run_command() {
 					# Set the variables defined in ARMBIAN_COMMAND_VARS
 					${set_vars_for_command}
@@ -129,6 +136,7 @@ function armbian_prepare_cli_command_to_run() {
 		eval "$(
 			cat <<- EOF
 				display_alert "Setting up run function for command" "${ARMBIAN_COMMAND}: ${run_function_name}" "debug"
+				# 这里会调用函数 cli_standard_build_run
 				function armbian_cli_run_command() {
 					# Set the variables defined in ARMBIAN_COMMAND_VARS
 					${set_vars_for_command}
@@ -145,8 +153,10 @@ function parse_each_cmdline_arg_as_command_param_or_config() {
 	local argument="${1}"
 
 	# lookup if it is a command.
+	# 传递进来的 build 对应的 handler 是 standard_build
 	if [[ -n "${ARMBIAN_COMMANDS_TO_HANDLERS_DICT[${argument}]}" ]]; then
 		is_command="yes"
+		# 这里 build 对应的 handler 是 standard_build
 		command_handler="${ARMBIAN_COMMANDS_TO_HANDLERS_DICT[${argument}]}"
 		display_alert "Found command!" "${argument} is handled by '${command_handler}'" "debug"
 	fi
@@ -174,12 +184,14 @@ function parse_each_cmdline_arg_as_command_param_or_config() {
 		display_alert "Adding config file to list" "${config_file}" "debug"
 		ARMBIAN_CONFIG_FILES+=("${config_file}")      # full path to be sourced
 		ARMBIAN_CLI_RELAUNCH_CONFIGS+=("${argument}") # name reference to be relaunched
+	# 仅仅只有 build 不用配置
 	elif [[ "${is_command}" == "yes" ]]; then      # we have a command, only.
 		# sanity check. we can't have more than one command. decide!
 		if [[ -n "${ARMBIAN_COMMAND}" ]]; then
 			exit_with_error "You cannot specify more than one command. You have '${ARMBIAN_COMMAND}' and '${argument}'. Please decide which one you want to run and pass only that one."
 			exit 1
 		fi
+		# 这里 ARMBIAN_COMMAND=build
 		ARMBIAN_COMMAND="${argument}" # too early for armbian_prepare_cli_command_to_run "${argument}"
 	else
 		# We've an unknown argument. Alert now, bomb later.
@@ -281,6 +293,7 @@ function cli_standard_relaunch_docker_or_sudo() {
 		display_alert "This script requires root privileges; Docker is unavailable" "trying to use sudo" "wrn"
 		declare -g ARMBIAN_CLI_FINAL_RELAUNCH_ARGS=()
 		declare -g ARMBIAN_CLI_FINAL_RELAUNCH_ENVS=()
+		# 生成重启脚本(需要 sudo 权限)的参数
 		produce_relaunch_parameters # produces ARMBIAN_CLI_FINAL_RELAUNCH_ARGS and ARMBIAN_CLI_FINAL_RELAUNCH_ENVS
 		# shellcheck disable=SC2093 # re-launching under sudo: replace the current shell, and never return.
 		exec sudo --preserve-env "${ARMBIAN_CLI_FINAL_RELAUNCH_ENVS[@]}" bash "${SRC}/compile.sh" "${ARMBIAN_CLI_FINAL_RELAUNCH_ARGS[@]}" # MARK: relaunch done here!

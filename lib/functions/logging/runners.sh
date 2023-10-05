@@ -120,6 +120,9 @@ function chroot_sdcard_apt_get() {
 
 # please, please, unify around this function.
 function chroot_sdcard() {
+	# -e 表示如果后续命令返回错误，那么立即退出
+	# -o pipefail 表示返回的错误值是最右边的命令返回值，如果后续所有命令执行完都返回成功，那么返回 0
+	# 因为前面将 SDCARD 目录切换为 root 目录
 	raw_command="$*" raw_extra="chroot_sdcard" TMPDIR="" \
 		run_host_command_logged_raw chroot "${SDCARD}" /usr/bin/env bash -e -o pipefail -c "$*"
 }

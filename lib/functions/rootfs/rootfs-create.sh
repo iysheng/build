@@ -228,7 +228,7 @@ function create_new_rootfs_cache_via_debootstrap() {
 
 	# Mask `systemd-firstboot.service` which will prompt locale, timezone and root-password too early.
 	# `armbian-first-run` will do the same thing later
-	# 搞不懂为什么这个命令也提示没有
+	# 搞不懂为什么这个命令也提示没有, 因为在命令 chroot_sdcard 中，会临时修改 / 目录到 ${SDCARD}
 	# chroot_sdcard systemctl mask systemd-firstboot.service
 
 	# stage: make rootfs cache archive

@@ -8,6 +8,7 @@
 # https://github.com/armbian/build/
 
 # mount_chroot <target>
+# 传递进来的这个目录很重要
 function mount_chroot() {
 	if [[ "x${LOG_SECTION}x" == "xx" ]]; then
 		display_alert "mount_chroot called outside of logging section..." "mount_chroot '$1'\n$(stack_color="${magenta_color:-}" show_caller_full)" "warn"

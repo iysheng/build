@@ -48,26 +48,26 @@ function apt_purge_unneeded_packages_and_clean_apt_caches() {
 function apt_lists_copy_from_host_to_image_and_update() {
 	display_alert "Copying host-side apt list cache into image" "apt-get update and clean image-side" "info"
 
-	declare -i local_apt_cache_lists_count
-	if [[ "${LOCAL_APT_CACHE_INFO[USE]}" == "yes" ]]; then
-		# If using a host-side local cache, copy the lists into the image...
-		run_host_command_logged mkdir -pv "${LOCAL_APT_CACHE_INFO[SDCARD_LISTS_DIR]}"
-		display_alert "Copying host-side local apt list cache dir" "${LOCAL_APT_CACHE_INFO[SDCARD_LISTS_DIR]}" "debug"
-		run_host_command_logged cp -pr "${LOCAL_APT_CACHE_INFO[HOST_LISTS_DIR]}"/* "${LOCAL_APT_CACHE_INFO[SDCARD_LISTS_DIR]}"/
+	# declare -i local_apt_cache_lists_count
+	# if [[ "${LOCAL_APT_CACHE_INFO[USE]}" == "yes" ]]; then
+		# # If using a host-side local cache, copy the lists into the image...
+		# run_host_command_logged mkdir -pv "${LOCAL_APT_CACHE_INFO[SDCARD_LISTS_DIR]}"
+		# display_alert "Copying host-side local apt list cache dir" "${LOCAL_APT_CACHE_INFO[SDCARD_LISTS_DIR]}" "debug"
+		# run_host_command_logged cp -pr "${LOCAL_APT_CACHE_INFO[HOST_LISTS_DIR]}"/* "${LOCAL_APT_CACHE_INFO[SDCARD_LISTS_DIR]}"/
 
-		# Count how many files we have in the lists dir.
-		local_apt_cache_lists_count="$(ls -1 "${LOCAL_APT_CACHE_INFO[SDCARD_LISTS_DIR]}" | wc -l)"
-		display_alert "After copying host-side cache into image" "${local_apt_cache_lists_count} files" "info"
-	fi
+		# # Count how many files we have in the lists dir.
+		# local_apt_cache_lists_count="$(ls -1 "${LOCAL_APT_CACHE_INFO[SDCARD_LISTS_DIR]}" | wc -l)"
+		# display_alert "After copying host-side cache into image" "${local_apt_cache_lists_count} files" "info"
+	# fi
 
-	# ...and update the lists in the image; this makes sure we're not shipping stale lists. also clean.
-	# Attention: this is NOT using `chroot_sdcard_apt_get_update` or any `chroot_sdcard_apt_get` variant,
-	#            since would actually mount the lists from the host, which is not what we want.
-	display_alert "Updating apt lists in image" "apt-get update and clean" "info"
-	chroot_sdcard apt-get -y -o "APT::Get::List-Cleanup=1" -o "APT::Clean-Installed=1" update
-	chroot_sdcard apt-get -y -o "APT::Get::List-Cleanup=1" -o "APT::Clean-Installed=1" clean
+	# # ...and update the lists in the image; this makes sure we're not shipping stale lists. also clean.
+	# # Attention: this is NOT using `chroot_sdcard_apt_get_update` or any `chroot_sdcard_apt_get` variant,
+	# #            since would actually mount the lists from the host, which is not what we want.
+	# display_alert "Updating apt lists in image" "apt-get update and clean" "info"
+	# chroot_sdcard apt-get -y -o "APT::Get::List-Cleanup=1" -o "APT::Clean-Installed=1" update
+	# chroot_sdcard apt-get -y -o "APT::Get::List-Cleanup=1" -o "APT::Clean-Installed=1" clean
 
-	local_apt_cache_lists_count="$(ls -1 "${LOCAL_APT_CACHE_INFO[SDCARD_LISTS_DIR]}" | wc -l)"
+	# local_apt_cache_lists_count="$(ls -1 "${LOCAL_APT_CACHE_INFO[SDCARD_LISTS_DIR]}" | wc -l)"
 	display_alert "After updating and cleaning image apt list cache" "${local_apt_cache_lists_count} files" "info"
 }
 
