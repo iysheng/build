@@ -14,6 +14,7 @@
 #	declare -a -g ARMBIAN_NON_PARAM_ARGS=()
 #	parse_cmdline_params "${@}" # which fills the vars above, being global.
 function parse_cmdline_params() {
+	# 定义全局的存储 key=value 命令行参数和 cmd， cmd， 这些命令行参数
 	declare -A -g ARMBIAN_PARSED_CMDLINE_PARAMS=()
 	declare -a -g ARMBIAN_NON_PARAM_ARGS=()
 
@@ -22,6 +23,7 @@ function parse_cmdline_params() {
 	for arg in "${@}"; do
 		if [[ "${arg}" == *=* ]]; then # contains an equal sign. it's a param.
 			local param_name param_value param_value_desc
+			# 分别解析参数名和参数值
 			param_name=${arg%%=*}
 			param_value=${arg##*=}
 			param_value_desc="${param_value:-(empty)}"

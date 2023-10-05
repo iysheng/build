@@ -10,6 +10,7 @@
 # 注册命令, 就是声明一些全局变量，类型是字典
 function armbian_register_commands() {
 	# More than one command can map to the same handler. In that case, use ARMBIAN_COMMANDS_TO_VARS_DICT for specific vars.
+	# 注册了全局的字典变量，字典也可以被认为是数组
 	declare -g -A ARMBIAN_COMMANDS_TO_HANDLERS_DICT=(
 		["docker"]="docker" # thus requires cli_docker_pre_run and cli_docker_run
 		["docker-purge"]="docker"
@@ -42,6 +43,7 @@ function armbian_register_commands() {
 		["kernel-patches-to-git"]="patch_kernel"  # implemented in cli_patch_kernel_pre_run and cli_patch_kernel_run
 		["rewrite-kernel-patches"]="patch_kernel" # implemented in cli_patch_kernel_pre_run and cli_patch_kernel_run
 
+		# 在命令行标准构建和 pre 阶段
 		["build"]="standard_build" # implemented in cli_standard_build_pre_run and cli_standard_build_run
 		["distccd"]="distccd"      # implemented in cli_distccd_pre_run and cli_distccd_run
 		["flash"]="flash"          # implemented in cli_flash_pre_run and cli_flash_run
@@ -90,6 +92,7 @@ function armbian_register_commands() {
 	declare common_cli_artifact_interactive_vars="ARTIFACT_WILL_NOT_BUILD='yes' ARTIFACT_BUILD_INTERACTIVE='yes' ARTIFACT_IGNORE_CACHE='yes'"
 
 	# Vars to be set for each command. Optional.
+	# 不同命令紧跟的变量设置，或者叫做命令行参数设置
 	declare -g -A ARMBIAN_COMMANDS_TO_VARS_DICT=(
 		["docker-purge"]="DOCKER_SUBCMD='purge'"
 		["dockerpurge"]="DOCKER_SUBCMD='purge'"
