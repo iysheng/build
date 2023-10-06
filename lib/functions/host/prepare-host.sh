@@ -351,6 +351,8 @@ function adaptative_prepare_host_dependencies() {
 
 function install_host_dependencies() {
 	display_alert "Installing build dependencies" "$*" "debug"
+	echo $* >> /tmp/aa.list
+	return
 
 	return
 	# don't prompt for apt cacher selection. this is to skip the prompt only, since we'll manage acng config later.

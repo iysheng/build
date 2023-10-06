@@ -9,6 +9,7 @@
 
 function run_tool_batcat() {
 	# Default version
+	# 如果 BATCAT_VERSION 版本存在，那么返回 BATCAT_VERSION 的值，否则返回 0.23.0
 	BATCAT_VERSION=${BATCAT_VERSION:-0.23.0} # https://github.com/sharkdp/bat/releases
 
 	declare non_cache_dir="/armbian-tools/batcat" # To deploy/reuse cached batcat in a Docker image.
