@@ -23,6 +23,7 @@ function prepare_kernel_config_core_or_userpatches() {
 	fi
 }
 
+# 内核配置
 function kernel_config() {
 	# check $kernel_work_dir is set and exists, or bail
 	[[ -z "${kernel_work_dir}" ]] && exit_with_error "kernel_work_dir is not set"
@@ -32,6 +33,7 @@ function kernel_config() {
 
 	LOG_SECTION="kernel_config_initialize" do_with_logging do_with_hooks kernel_config_initialize
 
+	# 如果需要对内核进行配置那么会开启 menuconfig
 	if [[ "${KERNEL_CONFIGURE}" == "yes" ]]; then
 		# This piece is interactive, no logging
 		display_alert "Starting (interactive) kernel ${KERNEL_MENUCONFIG:-menuconfig}" "${LINUXCONFIG}" "debug"

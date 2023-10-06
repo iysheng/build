@@ -29,6 +29,7 @@ function cli_patch_kernel_run() {
 	declare -g PATCH_ONLY=yes                # stop after patching.
 	declare -g GIT_ARCHEOLOGY=yes            # do archeology
 	declare -g FAST_ARCHEOLOGY=yes           # do archeology, but only for the exact path we need.
+	# 定义默认是不需要对内核进行 menuconfig 配置
 	declare -g KERNEL_CONFIGURE=no           # no menuconfig
 	declare -g RELEASE="${RELEASE:-"jammy"}" # or whatever, not relevant, just fool the configuration
 

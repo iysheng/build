@@ -37,7 +37,7 @@ grab_version() {
 #
 find_toolchain() {
 	[[ "${SKIP_EXTERNAL_TOOLCHAINS}" == "yes" ]] && {
-		echo "/usr/bin"
+		echo "/home/red/Codes_of_pro/ai_light_brain/misc/Xuantie-900-gcc-linux-5.10.4-glibc-x86_64-V2.6.2/bin"
 		return
 	}
 
