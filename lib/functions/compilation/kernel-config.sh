@@ -92,6 +92,7 @@ function call_extensions_kernel_config() {
 	ARMBIAN_KERNEL_CONFIG
 
 	# Custom hooks receive a clean / updated config; depending on their modifications, they may need to run olddefconfig again.
+	# 在这里通过 hook 回调用户的 kernel_config 方法
 	call_extension_method "custom_kernel_config" <<- 'CUSTOM_KERNEL_CONFIG'
 		*Kernel .config is in place, still clean from git version*
 		Called after ${LINUXCONFIG}.config is put in place (.config).
