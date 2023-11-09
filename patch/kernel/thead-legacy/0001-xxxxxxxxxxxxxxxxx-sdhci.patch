@@ -1,0 +1,25 @@
+From 1bd10952e65cc9baff0cd54c692eb752d45ab4a5 Mon Sep 17 00:00:00 2001
+From: iysheng <iysheng@163.com>
+Date: Thu, 9 Nov 2023 20:37:04 +0800
+Subject: [PATCH] xxxxxxxxxxxxxxxxx sdhci
+
+---
+ arch/riscv/boot/dts/thead/light.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/riscv/boot/dts/thead/light.dtsi b/arch/riscv/boot/dts/thead/light.dtsi
+index af281ef35e30..b0b85b37a9e3 100644
+--- a/arch/riscv/boot/dts/thead/light.dtsi
++++ b/arch/riscv/boot/dts/thead/light.dtsi
+@@ -575,7 +575,7 @@ dummy_clock_gmac: gmac-clock@17 {
+ 			dummy_clock_sdhci: sdhci-clock@18 {
+ 				compatible = "fixed-clock";
+ 				reg = <18>;	/* Not address, just for index */
+-				clock-frequency = <198000000>;
++				clock-frequency = <150000000>;
+ 				clock-output-names = "dummy_clock_sdhci";
+ 				#clock-cells = <0>;
+ 			};
+-- 
+2.41.0
+
