@@ -46,9 +46,10 @@ function regular_git() {
 
 # avoid repeating myself too much
 function improved_git_fetch() {
+	echo "Red $@ Blue"
 	declare -a verbose_params=() && if_user_on_terminal_and_not_logging_add verbose_params "--verbose" "--progress"
 	# --no-auto-maintenance requires a recent git version, not available on focal-like host OSs
-	improved_git fetch "${verbose_params[@]}" --recurse-submodules=no "$@"
+	improved_git fetch "${verbose_params[@]}"  --verbose --progress --recurse-submodules=no "$@"
 }
 
 # workaround new limitations imposed by CVE-2022-24765 fix in git, otherwise  "fatal: unsafe repository"
@@ -210,9 +211,11 @@ function fetch_from_repo() {
 	if [[ "${changed}" == "true" ]]; then
 
 		# remote was updated, fetch and check out updates, but not tags; tags pull their respective commits too, making it a huge fetch.
+		# 会走到这里
 		display_alert "Fetching updates from remote repository" "$dir $ref_name"
 		case $ref_type in
 			branch)
+				# 走到这里
 				improved_git_fetch --no-tags "${url}" "${ref_name}"
 				;;
 			tag)

@@ -62,14 +62,22 @@ function install_host_side_packages() {
 	# shellcheck disable=SC2207 # I wanna split, thanks.
 	currently_provided_packages=($(dpkg-query --show --showformat='${Provides}\n' | grep -v "^$" | sed -e 's/([^()]*)//g' | sed -e 's|,||g' | tr -s "\n" " "))
 
-	for PKG_TO_INSTALL in ${wanted_packages_string}; do
+	# 跳过检查
+	# for PKG_TO_INSTALL in ${wanted_packages_string}; do
+		# package_found=$(which ${PKG_TO_INSTALL} &> /dev/null; echo $?)
+		# echo "red"$package_found
+		# if [ 0 != $package_found ];then
+			# missing_packages+=("${PKG_TO_INSTALL}")
+			# display_alert "Missing packages host-side packages" "${missing_packages[*]}" "info"
+		# fi
 		# shellcheck disable=SC2076 # I wanna match literally, thanks.
-		if [[ ! " ${currently_installed_packages[*]} " =~ " ${PKG_TO_INSTALL} " ]]; then
-			if [[ ! " ${currently_provided_packages[*]} " =~ " ${PKG_TO_INSTALL} " ]]; then
-				missing_packages+=("${PKG_TO_INSTALL}")
-			fi
-		fi
-	done
+		# if [[ ! " ${currently_installed_packages[*]} " =~ " ${PKG_TO_INSTALL} " ]]; then
+			# if [[ ! " ${currently_provided_packages[*]} " =~ " ${PKG_TO_INSTALL} " ]]; then
+				# missing_packages+=("${PKG_TO_INSTALL}")
+				# display_alert "Missing packages host-side packages" "${missing_packages[*]}" "info"
+			# fi
+		# fi
+	# done
 
 	unset currently_installed_packages
 	unset currently_provided_packages
