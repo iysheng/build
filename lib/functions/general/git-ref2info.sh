@@ -114,6 +114,11 @@ function memoized_git_ref_to_info() {
 					esac
 					;;
 
+				"https://gitee.com/"*)
+					declare gitlab_path="${git_source%.git}" # remove .git
+					url="${git_source}/raw/${sha1}/Makefile"
+					;;
+
 				"https://gitlab.com/"* | "https://source.denx.de/"* | "https://gitlab.collabora.com/"*)
 					# GitLab is more complex than GitHub, there can be more levels.
 					# This code is incomplete... but it works for now.
